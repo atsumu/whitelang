@@ -1,0 +1,11 @@
+{
+  "name": "whitelang",
+  "version": "1.0.0",
+  "description": "",
+  "main": "white.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "atsumu",
+  "license": "MIT"
+}
