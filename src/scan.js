@@ -49,10 +49,24 @@ class Scan {
         tokens.push(Token.create('bol', pos, preSpace, '\n'));
         pos += 1;
       } else if (Scan.match(str, pos, '{')) {
-        tokens.push(Token.create('open', pos, preSpace, '{'));
+        tokens.push(Token.create('openBrace', pos, preSpace, '{'));
         pos += 1;
       } else if (Scan.match(str, pos, '}')) {
-        tokens.push(Token.create('close', pos, preSpace, '}'));
+        tokens.push(Token.create('closeBrace', pos, preSpace, '}'));
+        pos += 1;
+        takePostop = true;
+      } else if (Scan.match(str, pos, '[')) {
+        tokens.push(Token.create('openBracket', pos, preSpace, '['));
+        pos += 1;
+      } else if (Scan.match(str, pos, ']')) {
+        tokens.push(Token.create('closeBracket', pos, preSpace, ']'));
+        pos += 1;
+        takePostop = true;
+      } else if (Scan.match(str, pos, '(')) {
+        tokens.push(Token.create('openParen', pos, preSpace, '('));
+        pos += 1;
+      } else if (Scan.match(str, pos, ')')) {
+        tokens.push(Token.create('closeParen', pos, preSpace, ')'));
         pos += 1;
         takePostop = true;
       } else if (Scan.isSymbolChar(str, pos)) {

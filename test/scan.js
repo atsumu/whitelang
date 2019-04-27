@@ -41,12 +41,32 @@ test(Scan.top(''), [
 
 test(Scan.top('{'), [
   Token.create('bol', 0, '', ''),
-  Token.create('open', 0, '', '{'),
+  Token.create('openBrace', 0, '', '{'),
 ]);
 
 test(Scan.top('}'), [
   Token.create('bol', 0, '', ''),
-  Token.create('close', 0, '', '}'),
+  Token.create('closeBrace', 0, '', '}'),
+]);
+
+test(Scan.top('['), [
+  Token.create('bol', 0, '', ''),
+  Token.create('openBracket', 0, '', '['),
+]);
+
+test(Scan.top(']'), [
+  Token.create('bol', 0, '', ''),
+  Token.create('closeBracket', 0, '', ']'),
+]);
+
+test(Scan.top('('), [
+  Token.create('bol', 0, '', ''),
+  Token.create('openParen', 0, '', '('),
+]);
+
+test(Scan.top(')'), [
+  Token.create('bol', 0, '', ''),
+  Token.create('closeParen', 0, '', ')'),
 ]);
 
 test(Scan.top('a'), [

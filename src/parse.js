@@ -187,18 +187,40 @@ class Parse {
     Parse._debug(ts, p, 'operand');
     let r;
     if ((r = Parse.literal(ts, p)) ||
-        (r = Parse.block(ts, p))) {
+        (r = Parse.braceBlock(ts, p)) ||
+        (r = Parse.bracketBlock(ts, p)) ||
+        (r = Parse.parenBlock(ts, p))) {
       return Parse.result(Node.createNode('operand', [r.n]), r.p);
     }
     return null;
   }
-  static block(ts, p) {
-    Parse._debug(ts, p, 'block');
+  static braceBlock(ts, p) {
+    Parse._debug(ts, p, 'braceBlock');
     let r0, r1, r2;
-    if ((r0 = Parse.open(ts, p)) &&
+    if ((r0 = Parse.openBrace(ts, p)) &&
         (r1 = Parse.stmts(ts, r0.p)) &&
-        (r2 = Parse.close(ts, r1.p))) {
-      return Parse.result(Node.createNode('block', [r0.n, r1.n, r2.n]), r2.p);
+        (r2 = Parse.closeBrace(ts, r1.p))) {
+      return Parse.result(Node.createNode('braceBlock', [r0.n, r1.n, r2.n]), r2.p);
+    }
+    return null;
+  }
+  static bracketBlock(ts, p) {
+    Parse._debug(ts, p, 'bracketBlock');
+    let r0, r1, r2;
+    if ((r0 = Parse.openBracket(ts, p)) &&
+        (r1 = Parse.stmts(ts, r0.p)) &&
+        (r2 = Parse.closeBracket(ts, r1.p))) {
+      return Parse.result(Node.createNode('bracketBlock', [r0.n, r1.n, r2.n]), r2.p);
+    }
+    return null;
+  }
+  static parenBlock(ts, p) {
+    Parse._debug(ts, p, 'parenBlock');
+    let r0, r1, r2;
+    if ((r0 = Parse.openParen(ts, p)) &&
+        (r1 = Parse.stmts(ts, r0.p)) &&
+        (r2 = Parse.closeParen(ts, r1.p))) {
+      return Parse.result(Node.createNode('parenBlock', [r0.n, r1.n, r2.n]), r2.p);
     }
     return null;
   }
@@ -209,16 +231,44 @@ class Parse {
     }
     return null;
   }
-  static open(ts, p) {
-    Parse._debug(ts, p, 'open');
-    if (Parse._typeMatch(ts, p, 'open')) {
+  static openBrace(ts, p) {
+    Parse._debug(ts, p, 'openBrace');
+    if (Parse._typeMatch(ts, p, 'openBrace')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
-  static close(ts, p) {
-    Parse._debug(ts, p, 'close');
-    if (Parse._typeMatch(ts, p, 'close')) {
+  static closeBrace(ts, p) {
+    Parse._debug(ts, p, 'closeBrace');
+    if (Parse._typeMatch(ts, p, 'closeBrace')) {
+      return Parse.result(Node.createToken(ts[p]), p + 1);
+    }
+    return null;
+  }
+  static openBracket(ts, p) {
+    Parse._debug(ts, p, 'openBracket');
+    if (Parse._typeMatch(ts, p, 'openBracket')) {
+      return Parse.result(Node.createToken(ts[p]), p + 1);
+    }
+    return null;
+  }
+  static closeBracket(ts, p) {
+    Parse._debug(ts, p, 'closeBracket');
+    if (Parse._typeMatch(ts, p, 'closeBracket')) {
+      return Parse.result(Node.createToken(ts[p]), p + 1);
+    }
+    return null;
+  }
+  static openParen(ts, p) {
+    Parse._debug(ts, p, 'openParen');
+    if (Parse._typeMatch(ts, p, 'openParen')) {
+      return Parse.result(Node.createToken(ts[p]), p + 1);
+    }
+    return null;
+  }
+  static closeParen(ts, p) {
+    Parse._debug(ts, p, 'closeParen');
+    if (Parse._typeMatch(ts, p, 'closeParen')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
