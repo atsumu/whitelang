@@ -12,17 +12,36 @@ class Node {
     this.children = children;
     this.token = token;
   }
+  show(indent = 0) {
+    const i = ' '.repeat(indent);
+    if (this.type === 'token') {
+      const t = this.token;
+      return i + `(${t.type} ${t.pos} '${t.text}')\n`;
+    } else {
+      var s = i + `${this.type} {\n`;
+      for (const c of this.children) {
+        s += c.show(indent + 2);
+      }
+      s += i + '}\n';
+      return s;
+    }
+  }
 }
 
 class Parse {
+  static _debug(ts, p, n) {
+    // console.log(n, p, ts[p]);
+  }
   static result(n, p) {
     return { n, p };
   }
   static top(tokens) {
+    Parse._debug(tokens, 0, 'top');
     const r = Parse.stmts(tokens, 0);
     return r.n;
   }
   static stmts(ts, p) {
+    Parse._debug(ts, p, 'stmts');
     let r0;
     let ns = [];
     while (r0 = Parse.stmt(ts, p)) {
@@ -32,6 +51,7 @@ class Parse {
     return Parse.result(Node.createNode('stmts', ns), p);
   }
   static stmt(ts, p) {
+    Parse._debug(ts, p, 'stmt');
     let r0, r1;
     if ((r0 = Parse.bol(ts, p)) &&
         (r1 = Parse.exprIn0(ts, r0.p))) {
@@ -43,6 +63,7 @@ class Parse {
     return null;
   }
   static exprIn0(ts, p) {
+    Parse._debug(ts, p, 'exprIn0');
     let r;
     if ((r = Parse.infix0(ts, p)) ||
         (r = Parse.exprIn1(ts, p))) {
@@ -51,22 +72,16 @@ class Parse {
     return null;
   }
   static exprIn1(ts, p) {
+    Parse._debug(ts, p, 'exprIn1');
     let r;
     if ((r = Parse.infix1(ts, p)) ||
-        (r = Parse.exprBlock(ts, p))) {
+        (r = Parse.exprApply(ts, p))) {
       return Parse.result(Node.createNode('exprIn1', [r.n]), r.p);
     }
     return null;
   }
-  static exprBlock(ts, p) {
-    let r;
-    if ((r = Parse.block(ts, p)) ||
-        (r = Parse.exprApply(ts, p))) {
-      return Parse.result(Node.createNode('exprBlock', [r.n]), r.p);
-    }
-    return null;
-  }
   static exprApply(ts, p) {
+    Parse._debug(ts, p, 'exprApply');
     let r;
     if ((r = Parse.apply(ts, p)) ||
         (r = Parse.exprIn2(ts, p))) {
@@ -75,6 +90,7 @@ class Parse {
     return null;
   }
   static exprIn2(ts, p) {
+    Parse._debug(ts, p, 'exprIn2');
     let r;
     if ((r = Parse.infix2(ts, p)) ||
         (r = Parse.exprPre(ts, p))) {
@@ -83,6 +99,7 @@ class Parse {
     return null;
   }
   static exprPre(ts, p) {
+    Parse._debug(ts, p, 'exprPre');
     let r;
     if ((r = Parse.prefix(ts, p)) ||
         (r = Parse.exprPost(ts, p))) {
@@ -91,14 +108,16 @@ class Parse {
     return null;
   }
   static exprPost(ts, p) {
+    Parse._debug(ts, p, 'exprPost');
     let r;
     if ((r = Parse.postfix(ts, p)) ||
-        (r = Parse.literal(ts, p))) {
+        (r = Parse.operand(ts, p))) {
       return Parse.result(Node.createNode('exprPost', [r.n]), r.p);
     }
     return null;
   }
   static infix0(ts, p) {
+    Parse._debug(ts, p, 'infix0');
     let r0, r1, r2;
     if ((r0 = Parse.exprIn1(ts, p)) &&
         (r1 = Parse.inop0(ts, r0.p)) &&
@@ -108,6 +127,7 @@ class Parse {
     return null;
   }
   static infix1(ts, p) {
+    Parse._debug(ts, p, 'infix1');
     let r0, r1, r2;
     if ((r0 = Parse.apply(ts, p)) &&
         (r1 = Parse.inop1(ts, r0.p)) &&
@@ -117,15 +137,16 @@ class Parse {
     return null;
   }
   static apply(ts, p) {
-    let r0, r1, r2;
+    Parse._debug(ts, p, 'apply');
+    let r0, r1;
     if ((r0 = Parse.exprIn2(ts, p)) &&
-        (r1 = Parse.args(ts, r0.p)) &&
-        (r2 = Parse.blockOpt(ts, r1.p))) {
-      return Parse.result(Node.createNode('apply', [r0.n, r1.n, r2.n]), r2.p);
+        (r1 = Parse.args(ts, r0.p))) {
+      return Parse.result(Node.createNode('apply', [r0.n, r1.n]), r1.p);
     }
     return null;
   }
   static infix2(ts, p) {
+    Parse._debug(ts, p, 'infix2');
     let r0, r1, r2;
     if ((r0 = Parse.exprPre(ts, p)) &&
         (r1 = Parse.inop2(ts, r0.p)) &&
@@ -135,6 +156,7 @@ class Parse {
     return null;
   }
   static prefix(ts, p) {
+    Parse._debug(ts, p, 'prefix');
     let r0, r1;
     if ((r0 = Parse.preop(ts, p)) &&
         (r1 = Parse.exprPost(ts, r0.p))) {
@@ -143,30 +165,35 @@ class Parse {
     return null;
   }
   static postfix(ts, p) {
+    Parse._debug(ts, p, 'postfix');
     let r0, r1;
-    if ((r0 = Parse.literal(ts, p)) &&
+    if ((r0 = Parse.operand(ts, p)) &&
         (r1 = Parse.postop(ts, r0.p))) {
       return Parse.result(Node.createNode('postfix', [r0.n, r1.n]), r1.p);
     }
     return null;
   }
   static args(ts, p) {
+    Parse._debug(ts, p, 'args');
     let r0;
     let ns = [];
-    while (r0 = Parse.literal(ts, p)) {
+    while (r0 = Parse.exprIn2(ts, p)) {
       ns.push(r0.n);
       p = r0.p;
     }
     return Parse.result(Node.createNode('args', ns), p);
   }
-  static blockOpt(ts, p) {
-    let r0;
-    if (r0 = Parse.block(ts, p)) {
-      return Parse.result(Node.createNode('blockOpt', [r0.n]), r0.p);
+  static operand(ts, p) {
+    Parse._debug(ts, p, 'operand');
+    let r;
+    if ((r = Parse.literal(ts, p)) ||
+        (r = Parse.block(ts, p))) {
+      return Parse.result(Node.createNode('operand', [r.n]), r.p);
     }
-    return Parse.result(Node.createNode('blockOpt', []), p);
+    return null;
   }
   static block(ts, p) {
+    Parse._debug(ts, p, 'block');
     let r0, r1, r2;
     if ((r0 = Parse.open(ts, p)) &&
         (r1 = Parse.stmts(ts, r0.p)) &&
@@ -176,24 +203,28 @@ class Parse {
     return null;
   }
   static bol(ts, p) {
+    Parse._debug(ts, p, 'bol');
     if (Parse._typeMatch(ts, p, 'bol')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static open(ts, p) {
+    Parse._debug(ts, p, 'open');
     if (Parse._typeMatch(ts, p, 'open')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static close(ts, p) {
+    Parse._debug(ts, p, 'close');
     if (Parse._typeMatch(ts, p, 'close')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static literal(ts, p) {
+    Parse._debug(ts, p, 'literla');
     if (Parse._typeMatch(ts, p, 'symbol') ||
         Parse._typeMatch(ts, p, 'dstring') ||
         Parse._typeMatch(ts, p, 'sstring')) {
@@ -202,37 +233,42 @@ class Parse {
     return null;
   }
   static inop0(ts, p) {
+    Parse._debug(ts, p, 'inop0');
     if (Parse._typeMatch(ts, p, 'inop0')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static inop1(ts, p) {
+    Parse._debug(ts, p, 'inop1');
     if (Parse._typeMatch(ts, p, 'inop1')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static inop2(ts, p) {
+    Parse._debug(ts, p, 'inop2');
     if (Parse._typeMatch(ts, p, 'inop2')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static preop(ts, p) {
+    Parse._debug(ts, p, 'preop');
     if (Parse._typeMatch(ts, p, 'preop')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static postop(ts, p) {
+    Parse._debug(ts, p, 'postop');
     if (Parse._typeMatch(ts, p, 'postop')) {
       return Parse.result(Node.createToken(ts[p]), p + 1);
     }
     return null;
   }
   static _typeMatch(ts, p, t) {
-    return p < ts && ts[p].type === t;
+    return p < ts.length && ts[p].type === t;
   }
 }
 
