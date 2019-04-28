@@ -274,7 +274,7 @@ class Parse {
     return null;
   }
   static literal(ts, p) {
-    Parse._debug(ts, p, 'literla');
+    Parse._debug(ts, p, 'literal');
     if (Parse._typeMatch(ts, p, 'symbol') ||
         Parse._typeMatch(ts, p, 'dstring') ||
         Parse._typeMatch(ts, p, 'sstring')) {
