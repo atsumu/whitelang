@@ -136,8 +136,6 @@ function any(t) {
   }
   if (t.type === 'token') {
     if (t.context === 'symbol' ||
-        t.context === 'dstring' ||
-        t.context === 'sstring' ||
         t.context === 'inop0' ||
         t.context === 'inop1' ||
         t.context === 'inop2' ||
