@@ -212,7 +212,9 @@ function args(ts, p) {
 function operand(ts, p) {
   _debug(ts, p, 'operand');
   let r;
-  if ((r = literal(ts, p)) ||
+  if ((r = symbol(ts, p)) ||
+      (r = dstring(ts, p)) ||
+      (r = sstring(ts, p)) ||
       (r = braceBlock(ts, p)) ||
       (r = bracketBlock(ts, p)) ||
       (r = parenBlock(ts, p))) {
@@ -282,12 +284,16 @@ function closeParen(ts, p) {
   return _token(ts, p, 'closeParen');
 }
 
-function literal(ts, p) {
-  var r;
-  return (
-    _token(ts, p, 'symbol') ||
-    _token(ts, p, 'dstring') ||
-    _token(ts, p, 'sstring'));
+function symbol(ts, p) {
+  return _token(ts, p, 'symbol');
+}
+
+function dstring(ts, p) {
+  return _token(ts, p, 'dstring');
+}
+
+function sstring(ts, p) {
+  return _token(ts, p, 'sstring');
 }
 
 function inop0(ts, p) {

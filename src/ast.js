@@ -148,7 +148,7 @@ function any(t) {
         t.context === 'sstring') {
       return StringAst.create(t.token.text);
     }
-    throw new Error('unknown token context' + t.context);
+    throw new Error('unknown token context: ' + t.context);
   }
   throw new Error('unknown node type: ' + t.type);
 }
