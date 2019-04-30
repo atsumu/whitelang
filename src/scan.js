@@ -1,10 +1,5 @@
 const { Token } = require('./token');
 
-class ScanResult {
-  constructor() {
-  }
-}
-
 function match(str, pos, substr) {
   for (var i = 0; i < substr.length && pos + i < str.length; i++) {
     if (str.charCodeAt(pos + i) !== substr.charCodeAt(i)) {
@@ -161,7 +156,10 @@ function top(str) {
       pos = p;
     }
   }
-  return tokens;
+  return {
+    string: str,
+    tokens,
+  };
 }
 
 module.exports = { top };

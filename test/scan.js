@@ -3,7 +3,8 @@
 const Scan = require('../src/scan');
 const { Token } = require('../src/token');
 
-function test(tokens, expected) {
+function test(scanned, expected) {
+  const tokens = scanned.tokens;
   const min = Math.min(tokens.length, expected.length);
   const errors = [];
 
