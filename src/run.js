@@ -1,29 +1,5 @@
 'use strict';
 
-//-class RunX {
-//-  static top(n) {
-//-    return Run.stmts(n);
-//-  }
-//-  static stmts(n) {
-//-    var r = null, e = false;
-//-    for (const c of n.children) {
-//-      [r, e] = Run.stmt(n);
-//-    }
-//-    return [r, e];
-//-  }
-//-  static stmt(n) {
-//-    var r = null, e = false;
-//-    if (n.children.length >= 2) {
-//-      [r, e] = Run.exprIn0(n.children[1]);
-//-    }
-//-    return [r, e];
-//-  }
-//-  static exprIn0(n) {
-//-    var r = null, e = false;
-//-    // todo
-//-  }
-//-}
-
 class Env {
   static create() {
     return new Env();
@@ -31,9 +7,9 @@ class Env {
   constructor() {
     this.stacks = {};
     this.stmtStack = [];
-    this.topStmts = null;
-    this.topStmtsType = 'seq';
-    this.nextStmtsType = 'seq';
+    this.currBlock = null;
+    this.currBlockType = 'seq';
+    this.nextBlockType = 'seq';
     this.push('inop1', '+', args => {
       return args[0] + args[1];
     });
@@ -76,28 +52,28 @@ class Env {
     //const t = s[s.length - 1];
     return f(args);
   }
-  startStmts() {
-    this.stmtStack.push([this.topStmts, this.topStmtsType]);
-    if (this.topStmtsType === 'seq') {
-      this.topStmts = null;
+  startBlock() {
+    this.stmtStack.push([this.currBlock, this.currBlockType]);
+    if (this.currBlockType === 'seq') {
+      this.currBlock = null;
     } else {
-      throw new Error('unknown topStmtsType');
+      throw new Error('unknown currBlockType');
     }
-    this.topStmtsType = this.nextStmtsType;
-    this.nextStmtsType = 'seq';
+    this.currBlockType = this.nextBlockType;
+    this.nextBlockType = 'seq';
   }
-  endStmts() {
-    const stmts = this.topStmts;
+  endBlock() {
+    const stmts = this.currBlock;
     const top = this.stmtStack.pop();
-    this.topStmts = top[0];
-    this.topStmtsType = top[1];
+    this.currBlock = top[0];
+    this.currBlockType = top[1];
     return stmts;
   }
   stmt(v) {
-    if (this.topStmtsType === 'seq') {
-      this.topStmts = v;
+    if (this.currBlockType === 'seq') {
+      this.currBlock = v;
     } else {
-      throw new Error('unknown topStmtsType');
+      throw new Error('unknown currBlockType');
     }
   }
 }
@@ -109,152 +85,57 @@ class Run {
   constructor() {
     this.env = Env.create();
   }
-  top(n) {
-    //-console.log('top', n);
-    if (n.type === 'stmts') {
-      return this.stmts(n);
+  any(t) {
+    if (t.type === 'BlockAst') {
+      return this.block(t);
     }
-    if (n.type === 'exprIn0' ||
-        n.type === 'exprIn1' ||
-        n.type === 'exprApply' ||
-        n.type === 'exprIn2' ||
-        n.type === 'exprPre' ||
-        n.type === 'exprPost' ||
-        n.type === 'operand' ||
-        false) {
-      return this.top(n.children[0]);
+    if (t.type === 'AssignAst') {
+      return this.assign(t);
     }
-    if (n.type === 'infix0') {
-      return this.infix0(n);
+    if (t.type === 'ApplyAst') {
+      return this.apply(t);
     }
-    if (n.type === 'infix1') {
-      return this.infix1(n);
+    if (t.type === 'SymbolAst') {
+      return this.symbol(t);
     }
-    if (n.type === 'apply') {
-      return this.apply(n);
+    if (t.type === 'StringAst') {
+      return this.string(t);
     }
-    if (n.type === 'infix2') {
-      return this.infix2(n);
-    }
-    if (n.type === 'prefix') {
-      return this.prefix(n);
-    }
-    if (n.type === 'postfix') {
-      return this.postfix(n);
-    }
-    if (n.type === 'args') {
-      return this.args(n);
-    }
-    if (n.type === 'braceBlock' ||
-        n.type === 'bracketBlock' ||
-        n.type === 'parenBlock' ||
-        false) {
-      return this.stmts(n.children[1]);
-    }
-    if (n.type === 'literal') {
-      return this.literal(n);
-    }
-    if (n.type === 'inop0' ||
-        n.type === 'inop1' ||
-        n.type === 'inop2' ||
-        n.type === 'preop' ||
-        n.type === 'postop' ||
-        false) {
-      return this.literal(n);
-    }
-    if (n.type === 'token') {
-      return this.token(n);
-    }
-    throw new Error('not implemented');
-    return this.stmts(n);
+    throw new Error('not implemented ast type: ' + t.type);
   }
-  stmts(n) {
-    //-console.log('stmts', n);
-    this.env.startStmts();
-    for (const c of n.children) {
+  block(t) {
+    this.env.startBlock();
+    for (const c of t.children) {
       this.stmt(c);
     }
-    return this.env.endStmts();
+    return this.env.endBlock();
   }
-  stmt(n) {
-    //-console.log('stmt', n, n.children);
-    if (n.children.length >= 2) {
-      const r = this.top(n.children[1]);
-      this.env.stmt(r);
+  stmt(t) {
+    const r = this.any(t);
+    this.env.stmt(r);
+  }
+  assign(t) {
+    const r0 = this.any(t.args[0]);
+    const r1 = this.any(t.args[1]);
+    return this.env.push(r0.subtype, r0.text, r1); // todo: assign
+  }
+  apply(t) {
+    const op = this.any(t.operator);
+    const as = [];
+    for (const a of t.args) {
+      as.push(this.any(a));
     }
+    return this.env.apply(op, as);
   }
-  infix0(n) {
-    const r0 = this.top(n.children[0]);
-    const r2 = this.top(n.children[2]);
-    this.env.push(r0.type, r0.name, r2); // todo
-  }
-  infix1(n) {
-    const r0 = this.top(n.children[0]);
-    const r1 = this.top(n.children[1]);
-    const r2 = this.top(n.children[2]);
-    return this.env.apply(r1, [r0, r2]);
-  }
-  apply(n) {
-    const r0 = this.top(n.children[0]);
-    const r1 = this.top(n.children[1]);
-    return this.env.apply(r0, r1);
-  }
-  infix2(n) {
-    const r0 = this.top(n.children[0]);
-    const r1 = this.top(n.children[1]);
-    const r2 = this.top(n.children[2]);
-    return this.env.apply(r1, [r0, r2]);
-  }
-  prefix(n) {
-    const r0 = this.top(n.children[0]);
-    const r1 = this.top(n.children[1]);
-    return this.env.apply(r0, [r1]);
-  }
-  postfix(n) {
-    const r0 = this.top(n.children[0]);
-    const r1 = this.top(n.children[1]);
-    return this.env.apply(r1, [r0]);
-  }
-  args(n) {
-    const rs = [];
-    for (const c of n.children) {
-      rs.push(this.top(c));
+  symbol(t) {
+    const i = parseInt(t.text);
+    if (isNaN(i)) {
+      return this.env.top('inop1', t.text);
     }
-    return rs;
+    return i;
   }
-  literal(n) {
-    if (n.token.type === 'symbol') {
-      //-console.log(n);
-      return parseInt(n.token.text);
-    }
-    if (n.token.type === 'dstring') {
-      return n.token.text;
-    }
-    if (n.token.type === 'sstring') {
-      return n.token.text;
-    }
-    throw new Error('not implemented');
-  }
-  token(n) {
-    if (n.token.type === 'symbol') {
-      //-console.log(n);
-      return parseInt(n.token.text);
-    }
-    if (n.token.type === 'dstring') {
-      return n.token.text;
-    }
-    if (n.token.type === 'sstring') {
-      return n.token.text;
-    }
-    if (n.token.type === 'inop0' ||
-        n.token.type === 'inop1' ||
-        n.token.type === 'inop2' ||
-        n.token.type === 'preop' ||
-        n.token.type === 'postop' ||
-        false) {
-      return this.env.top(n.token.type, n.token.text);
-    }
-    throw new Error('not implemented');
+  string(t) {
+    return t.text;
   }
 }
 

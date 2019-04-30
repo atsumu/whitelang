@@ -7,6 +7,12 @@ class Node {
   static createToken(token) {
     return new Node('token', [], token);
   }
+  static createSymbol(token) {
+    return new Node('symbol', [], token);
+  }
+  static createString(token) {
+    return new Node('string', [], token);
+  }
   constructor(type, children, token) {
     this.type = type;
     this.children = children;
@@ -14,7 +20,9 @@ class Node {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    if (this.type === 'token') {
+    if (this.type === 'token' ||
+        this.type === 'symbol' ||
+        this.type === 'string') {
       const t = this.token;
       return i + `(${t.type} ${t.pos} '${t.text}')\n`;
     } else {
@@ -28,298 +36,298 @@ class Node {
   }
 }
 
-class Parse {
-  static _debug(ts, p, n) {
-    // console.log(n, p, ts[p]);
+function _debug(ts, p, n) {
+  // console.log(n, p, ts[p]);
+}
+function result(n, p) {
+  return { n, p };
+}
+function top(tokens) {
+  _debug(tokens, 0, 'top');
+  const r = stmts(tokens, 0);
+  return r.n;
+}
+function stmts(ts, p) {
+  _debug(ts, p, 'stmts');
+  let r0;
+  let ns = [];
+  while (r0 = stmt(ts, p)) {
+    ns.push(r0.n);
+    p = r0.p;
   }
-  static result(n, p) {
-    return { n, p };
+  return result(Node.createNode('stmts', ns), p);
+}
+function stmt(ts, p) {
+  _debug(ts, p, 'stmt');
+  let r0, r1;
+  if ((r0 = bol(ts, p)) &&
+      (r1 = exprIn0(ts, r0.p))) {
+    return result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
   }
-  static top(tokens) {
-    Parse._debug(tokens, 0, 'top');
-    const r = Parse.stmts(tokens, 0);
-    return r.n;
+  if (r0 = bol(ts, p)) {
+    return result(Node.createNode('stmt', [r0.n]), r0.p);
   }
-  static stmts(ts, p) {
-    Parse._debug(ts, p, 'stmts');
-    let r0;
-    let ns = [];
-    while (r0 = Parse.stmt(ts, p)) {
-      ns.push(r0.n);
-      p = r0.p;
-    }
-    return Parse.result(Node.createNode('stmts', ns), p);
+  return null;
+}
+function exprIn0(ts, p) {
+  _debug(ts, p, 'exprIn0');
+  let r;
+  if ((r = infix0(ts, p)) ||
+      (r = exprIn1(ts, p))) {
+    return result(Node.createNode('exprIn0', [r.n]), r.p);
   }
-  static stmt(ts, p) {
-    Parse._debug(ts, p, 'stmt');
-    let r0, r1;
-    if ((r0 = Parse.bol(ts, p)) &&
-        (r1 = Parse.exprIn0(ts, r0.p))) {
-      return Parse.result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
-    }
-    if (r0 = Parse.bol(ts, p)) {
-      return Parse.result(Node.createNode('stmt', [r0.n]), r0.p);
-    }
-    return null;
+  return null;
+}
+function exprIn1(ts, p) {
+  _debug(ts, p, 'exprIn1');
+  let r;
+  if ((r = infix1(ts, p)) ||
+      (r = exprApply(ts, p))) {
+    return result(Node.createNode('exprIn1', [r.n]), r.p);
   }
-  static exprIn0(ts, p) {
-    Parse._debug(ts, p, 'exprIn0');
-    let r;
-    if ((r = Parse.infix0(ts, p)) ||
-        (r = Parse.exprIn1(ts, p))) {
-      return Parse.result(Node.createNode('exprIn0', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function exprApply(ts, p) {
+  _debug(ts, p, 'exprApply');
+  let r;
+  if ((r = apply(ts, p)) ||
+      (r = exprIn2(ts, p))) {
+    return result(Node.createNode('exprApply', [r.n]), r.p);
   }
-  static exprIn1(ts, p) {
-    Parse._debug(ts, p, 'exprIn1');
-    let r;
-    if ((r = Parse.infix1(ts, p)) ||
-        (r = Parse.exprApply(ts, p))) {
-      return Parse.result(Node.createNode('exprIn1', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function exprIn2(ts, p) {
+  _debug(ts, p, 'exprIn2');
+  let r;
+  if ((r = infix2(ts, p)) ||
+      (r = exprPre(ts, p))) {
+    return result(Node.createNode('exprIn2', [r.n]), r.p);
   }
-  static exprApply(ts, p) {
-    Parse._debug(ts, p, 'exprApply');
-    let r;
-    if ((r = Parse.apply(ts, p)) ||
-        (r = Parse.exprIn2(ts, p))) {
-      return Parse.result(Node.createNode('exprApply', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function exprPre(ts, p) {
+  _debug(ts, p, 'exprPre');
+  let r;
+  if ((r = prefix(ts, p)) ||
+      (r = exprPost(ts, p))) {
+    return result(Node.createNode('exprPre', [r.n]), r.p);
   }
-  static exprIn2(ts, p) {
-    Parse._debug(ts, p, 'exprIn2');
-    let r;
-    if ((r = Parse.infix2(ts, p)) ||
-        (r = Parse.exprPre(ts, p))) {
-      return Parse.result(Node.createNode('exprIn2', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function exprPost(ts, p) {
+  _debug(ts, p, 'exprPost');
+  let r;
+  if ((r = postfix(ts, p)) ||
+      (r = operand(ts, p))) {
+    return result(Node.createNode('exprPost', [r.n]), r.p);
   }
-  static exprPre(ts, p) {
-    Parse._debug(ts, p, 'exprPre');
-    let r;
-    if ((r = Parse.prefix(ts, p)) ||
-        (r = Parse.exprPost(ts, p))) {
-      return Parse.result(Node.createNode('exprPre', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function infix0(ts, p) {
+  _debug(ts, p, 'infix0');
+  let r0, r1, r2;
+  if ((r0 = exprIn1(ts, p)) &&
+      (r1 = inop0(ts, r0.p)) &&
+      (r2 = exprIn0(ts, r1.p))) {
+    return result(Node.createNode('infix0', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static exprPost(ts, p) {
-    Parse._debug(ts, p, 'exprPost');
-    let r;
-    if ((r = Parse.postfix(ts, p)) ||
-        (r = Parse.operand(ts, p))) {
-      return Parse.result(Node.createNode('exprPost', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function infix1(ts, p) {
+  _debug(ts, p, 'infix1');
+  let r0, r1, r2;
+  if ((r0 = apply(ts, p)) &&
+      (r1 = inop1(ts, r0.p)) &&
+      (r2 = exprIn1(ts, r1.p))) {
+    return result(Node.createNode('infix1', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static infix0(ts, p) {
-    Parse._debug(ts, p, 'infix0');
-    let r0, r1, r2;
-    if ((r0 = Parse.exprIn1(ts, p)) &&
-        (r1 = Parse.inop0(ts, r0.p)) &&
-        (r2 = Parse.exprIn0(ts, r1.p))) {
-      return Parse.result(Node.createNode('infix0', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function apply(ts, p) {
+  _debug(ts, p, 'apply');
+  let r0, r1;
+  if ((r0 = exprIn2(ts, p)) &&
+      (r1 = args(ts, r0.p))) {
+    return result(Node.createNode('apply', [r0.n, r1.n]), r1.p);
   }
-  static infix1(ts, p) {
-    Parse._debug(ts, p, 'infix1');
-    let r0, r1, r2;
-    if ((r0 = Parse.apply(ts, p)) &&
-        (r1 = Parse.inop1(ts, r0.p)) &&
-        (r2 = Parse.exprIn1(ts, r1.p))) {
-      return Parse.result(Node.createNode('infix1', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function infix2(ts, p) {
+  _debug(ts, p, 'infix2');
+  let r0, r1, r2;
+  if ((r0 = exprPre(ts, p)) &&
+      (r1 = inop2(ts, r0.p)) &&
+      (r2 = exprIn2(ts, r1.p))) {
+    return result(Node.createNode('infix2', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static apply(ts, p) {
-    Parse._debug(ts, p, 'apply');
-    let r0, r1;
-    if ((r0 = Parse.exprIn2(ts, p)) &&
-        (r1 = Parse.args(ts, r0.p))) {
-      return Parse.result(Node.createNode('apply', [r0.n, r1.n]), r1.p);
-    }
-    return null;
+  return null;
+}
+function prefix(ts, p) {
+  _debug(ts, p, 'prefix');
+  let r0, r1;
+  if ((r0 = preop(ts, p)) &&
+      (r1 = exprPost(ts, r0.p))) {
+    return result(Node.createNode('prefix', [r0.n, r1.n]), r1.p);
   }
-  static infix2(ts, p) {
-    Parse._debug(ts, p, 'infix2');
-    let r0, r1, r2;
-    if ((r0 = Parse.exprPre(ts, p)) &&
-        (r1 = Parse.inop2(ts, r0.p)) &&
-        (r2 = Parse.exprIn2(ts, r1.p))) {
-      return Parse.result(Node.createNode('infix2', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function postfix(ts, p) {
+  _debug(ts, p, 'postfix');
+  let r0, r1;
+  if ((r0 = operand(ts, p)) &&
+      (r1 = postop(ts, r0.p))) {
+    return result(Node.createNode('postfix', [r0.n, r1.n]), r1.p);
   }
-  static prefix(ts, p) {
-    Parse._debug(ts, p, 'prefix');
-    let r0, r1;
-    if ((r0 = Parse.preop(ts, p)) &&
-        (r1 = Parse.exprPost(ts, r0.p))) {
-      return Parse.result(Node.createNode('prefix', [r0.n, r1.n]), r1.p);
-    }
-    return null;
+  return null;
+}
+function args(ts, p) {
+  _debug(ts, p, 'args');
+  let r0;
+  let ns = [];
+  while (r0 = exprIn2(ts, p)) {
+    ns.push(r0.n);
+    p = r0.p;
   }
-  static postfix(ts, p) {
-    Parse._debug(ts, p, 'postfix');
-    let r0, r1;
-    if ((r0 = Parse.operand(ts, p)) &&
-        (r1 = Parse.postop(ts, r0.p))) {
-      return Parse.result(Node.createNode('postfix', [r0.n, r1.n]), r1.p);
-    }
-    return null;
+  return result(Node.createNode('args', ns), p);
+}
+function operand(ts, p) {
+  _debug(ts, p, 'operand');
+  let r;
+  if ((r = literal(ts, p)) ||
+      (r = braceBlock(ts, p)) ||
+      (r = bracketBlock(ts, p)) ||
+      (r = parenBlock(ts, p))) {
+    return result(Node.createNode('operand', [r.n]), r.p);
   }
-  static args(ts, p) {
-    Parse._debug(ts, p, 'args');
-    let r0;
-    let ns = [];
-    while (r0 = Parse.exprIn2(ts, p)) {
-      ns.push(r0.n);
-      p = r0.p;
-    }
-    return Parse.result(Node.createNode('args', ns), p);
+  return null;
+}
+function braceBlock(ts, p) {
+  _debug(ts, p, 'braceBlock');
+  let r0, r1, r2;
+  if ((r0 = openBrace(ts, p)) &&
+      (r1 = stmts(ts, r0.p)) &&
+      (r2 = closeBrace(ts, r1.p))) {
+    return result(Node.createNode('braceBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static operand(ts, p) {
-    Parse._debug(ts, p, 'operand');
-    let r;
-    if ((r = Parse.literal(ts, p)) ||
-        (r = Parse.braceBlock(ts, p)) ||
-        (r = Parse.bracketBlock(ts, p)) ||
-        (r = Parse.parenBlock(ts, p))) {
-      return Parse.result(Node.createNode('operand', [r.n]), r.p);
-    }
-    return null;
+  return null;
+}
+function bracketBlock(ts, p) {
+  _debug(ts, p, 'bracketBlock');
+  let r0, r1, r2;
+  if ((r0 = openBracket(ts, p)) &&
+      (r1 = stmts(ts, r0.p)) &&
+      (r2 = closeBracket(ts, r1.p))) {
+    return result(Node.createNode('bracketBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static braceBlock(ts, p) {
-    Parse._debug(ts, p, 'braceBlock');
-    let r0, r1, r2;
-    if ((r0 = Parse.openBrace(ts, p)) &&
-        (r1 = Parse.stmts(ts, r0.p)) &&
-        (r2 = Parse.closeBrace(ts, r1.p))) {
-      return Parse.result(Node.createNode('braceBlock', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function parenBlock(ts, p) {
+  _debug(ts, p, 'parenBlock');
+  let r0, r1, r2;
+  if ((r0 = openParen(ts, p)) &&
+      (r1 = stmts(ts, r0.p)) &&
+      (r2 = closeParen(ts, r1.p))) {
+    return result(Node.createNode('parenBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
-  static bracketBlock(ts, p) {
-    Parse._debug(ts, p, 'bracketBlock');
-    let r0, r1, r2;
-    if ((r0 = Parse.openBracket(ts, p)) &&
-        (r1 = Parse.stmts(ts, r0.p)) &&
-        (r2 = Parse.closeBracket(ts, r1.p))) {
-      return Parse.result(Node.createNode('bracketBlock', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function bol(ts, p) {
+  _debug(ts, p, 'bol');
+  if (_typeMatch(ts, p, 'bol')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static parenBlock(ts, p) {
-    Parse._debug(ts, p, 'parenBlock');
-    let r0, r1, r2;
-    if ((r0 = Parse.openParen(ts, p)) &&
-        (r1 = Parse.stmts(ts, r0.p)) &&
-        (r2 = Parse.closeParen(ts, r1.p))) {
-      return Parse.result(Node.createNode('parenBlock', [r0.n, r1.n, r2.n]), r2.p);
-    }
-    return null;
+  return null;
+}
+function openBrace(ts, p) {
+  _debug(ts, p, 'openBrace');
+  if (_typeMatch(ts, p, 'openBrace')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static bol(ts, p) {
-    Parse._debug(ts, p, 'bol');
-    if (Parse._typeMatch(ts, p, 'bol')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function closeBrace(ts, p) {
+  _debug(ts, p, 'closeBrace');
+  if (_typeMatch(ts, p, 'closeBrace')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static openBrace(ts, p) {
-    Parse._debug(ts, p, 'openBrace');
-    if (Parse._typeMatch(ts, p, 'openBrace')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function openBracket(ts, p) {
+  _debug(ts, p, 'openBracket');
+  if (_typeMatch(ts, p, 'openBracket')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static closeBrace(ts, p) {
-    Parse._debug(ts, p, 'closeBrace');
-    if (Parse._typeMatch(ts, p, 'closeBrace')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function closeBracket(ts, p) {
+  _debug(ts, p, 'closeBracket');
+  if (_typeMatch(ts, p, 'closeBracket')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static openBracket(ts, p) {
-    Parse._debug(ts, p, 'openBracket');
-    if (Parse._typeMatch(ts, p, 'openBracket')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function openParen(ts, p) {
+  _debug(ts, p, 'openParen');
+  if (_typeMatch(ts, p, 'openParen')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static closeBracket(ts, p) {
-    Parse._debug(ts, p, 'closeBracket');
-    if (Parse._typeMatch(ts, p, 'closeBracket')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function closeParen(ts, p) {
+  _debug(ts, p, 'closeParen');
+  if (_typeMatch(ts, p, 'closeParen')) {
+    return result(Node.createToken(ts[p]), p + 1);
   }
-  static openParen(ts, p) {
-    Parse._debug(ts, p, 'openParen');
-    if (Parse._typeMatch(ts, p, 'openParen')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function literal(ts, p) {
+  _debug(ts, p, 'literal');
+  if (_typeMatch(ts, p, 'symbol')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static closeParen(ts, p) {
-    Parse._debug(ts, p, 'closeParen');
-    if (Parse._typeMatch(ts, p, 'closeParen')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  if (_typeMatch(ts, p, 'dstring') ||
+      _typeMatch(ts, p, 'sstring')) {
+    return result(Node.createString(ts[p]), p + 1);
   }
-  static literal(ts, p) {
-    Parse._debug(ts, p, 'literal');
-    if (Parse._typeMatch(ts, p, 'symbol') ||
-        Parse._typeMatch(ts, p, 'dstring') ||
-        Parse._typeMatch(ts, p, 'sstring')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function inop0(ts, p) {
+  _debug(ts, p, 'inop0');
+  if (_typeMatch(ts, p, 'inop0')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static inop0(ts, p) {
-    Parse._debug(ts, p, 'inop0');
-    if (Parse._typeMatch(ts, p, 'inop0')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function inop1(ts, p) {
+  _debug(ts, p, 'inop1');
+  if (_typeMatch(ts, p, 'inop1')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static inop1(ts, p) {
-    Parse._debug(ts, p, 'inop1');
-    if (Parse._typeMatch(ts, p, 'inop1')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function inop2(ts, p) {
+  _debug(ts, p, 'inop2');
+  if (_typeMatch(ts, p, 'inop2')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static inop2(ts, p) {
-    Parse._debug(ts, p, 'inop2');
-    if (Parse._typeMatch(ts, p, 'inop2')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function preop(ts, p) {
+  _debug(ts, p, 'preop');
+  if (_typeMatch(ts, p, 'preop')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static preop(ts, p) {
-    Parse._debug(ts, p, 'preop');
-    if (Parse._typeMatch(ts, p, 'preop')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
+  return null;
+}
+function postop(ts, p) {
+  _debug(ts, p, 'postop');
+  if (_typeMatch(ts, p, 'postop')) {
+    return result(Node.createSymbol(ts[p]), p + 1);
   }
-  static postop(ts, p) {
-    Parse._debug(ts, p, 'postop');
-    if (Parse._typeMatch(ts, p, 'postop')) {
-      return Parse.result(Node.createToken(ts[p]), p + 1);
-    }
-    return null;
-  }
-  static _typeMatch(ts, p, t) {
-    return p < ts.length && ts[p].type === t;
-  }
+  return null;
+}
+function _typeMatch(ts, p, t) {
+  return p < ts.length && ts[p].type === t;
 }
 
-module.exports = { Parse };
+module.exports = { top };

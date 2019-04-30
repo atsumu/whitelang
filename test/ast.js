@@ -1,10 +1,11 @@
 'use strict';
 
-const Parse = require('../src/parse');
 const { Scan } = require('../src/scan');
-const util = require('util');
+const Parse = require('../src/parse');
+const Ast = require('../src/ast');
 
 var tokens = Scan.top('1 + 2 + 3');
 var node = Parse.top(tokens);
 console.log(node.show());
-//console.log(util.inspect(node, false, null, true));
+var ast = Ast.fromNode(node);
+console.log(ast.show());
