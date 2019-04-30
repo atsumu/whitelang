@@ -79,7 +79,7 @@ function exprIn0(ts, p) {
   let r;
   if ((r = infix0(ts, p)) ||
       (r = exprIn1(ts, p))) {
-    return result(Node.createNode('exprIn0', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }
@@ -89,7 +89,7 @@ function exprIn1(ts, p) {
   let r;
   if ((r = infix1(ts, p)) ||
       (r = exprApply(ts, p))) {
-    return result(Node.createNode('exprIn1', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }
@@ -99,7 +99,7 @@ function exprApply(ts, p) {
   let r;
   if ((r = apply(ts, p)) ||
       (r = exprIn2(ts, p))) {
-    return result(Node.createNode('exprApply', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }
@@ -109,7 +109,7 @@ function exprIn2(ts, p) {
   let r;
   if ((r = infix2(ts, p)) ||
       (r = exprPre(ts, p))) {
-    return result(Node.createNode('exprIn2', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }
@@ -119,7 +119,7 @@ function exprPre(ts, p) {
   let r;
   if ((r = prefix(ts, p)) ||
       (r = exprPost(ts, p))) {
-    return result(Node.createNode('exprPre', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }
@@ -129,7 +129,7 @@ function exprPost(ts, p) {
   let r;
   if ((r = postfix(ts, p)) ||
       (r = operand(ts, p))) {
-    return result(Node.createNode('exprPost', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }

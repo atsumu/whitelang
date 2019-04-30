@@ -106,15 +106,6 @@ function stmt(t) {
 }
 
 function any(t) {
-  if (t.type === 'exprIn0' ||
-      t.type === 'exprIn1' ||
-      t.type === 'exprApply' ||
-      t.type === 'exprIn2' ||
-      t.type === 'exprPre' ||
-      t.type === 'exprPost' ||
-      false) {
-    return any(t.children[0]);
-  }
   if (t.type === 'infix0' ||
       t.type === 'infix1' ||
       t.type === 'infix2' ||
