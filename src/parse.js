@@ -218,7 +218,7 @@ function operand(ts, p) {
       (r = braceBlock(ts, p)) ||
       (r = bracketBlock(ts, p)) ||
       (r = parenBlock(ts, p))) {
-    return result(Node.createNode('operand', [r.n]), r.p);
+    return result(r.n, r.p);
   }
   return null;
 }

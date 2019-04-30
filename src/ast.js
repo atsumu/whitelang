@@ -120,9 +120,6 @@ function any(t) {
   if (t.type === 'postfix') {
     return ApplyAst.create(any(t.children[1]), [any(t.children[0])]);
   }
-  if (t.type === 'operand') {
-    return any(t.children[0]);
-  }
   if (t.type === 'braceBlock' ||
       t.type === 'bracketBlock' ||
       t.type === 'parenBlock' ||
