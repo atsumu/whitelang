@@ -15,9 +15,7 @@ class Node {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    if (this.type === 'token' ||
-        this.type === 'symbol' ||
-        this.type === 'string') {
+    if (this.type === 'token') {
       const t = this.token;
       return i + `(${t.type} ${t.pos} ${this.context} '${t.text}')\n`;
     } else {

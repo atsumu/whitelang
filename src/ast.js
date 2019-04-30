@@ -104,6 +104,14 @@ function stmt(t) {
   return any(t.children[1]);
 }
 
+function args(t) {
+  const as = [];
+  for (const c of t.children) {
+    as.push(any(c));
+  }
+  return as;
+}
+
 function any(t) {
   if (t.type === 'infix0' ||
       t.type === 'infix1' ||
@@ -126,9 +134,6 @@ function any(t) {
       false) {
     return stmts(t.children[1], t.type);
   }
-  if (t.type === 'string') {
-    return StringAst.create(t.token.text);
-  }
   if (t.type === 'token') {
     if (t.context === 'symbol' ||
         t.context === 'dstring' ||
@@ -148,14 +153,6 @@ function any(t) {
     throw new Error('unknown token context' + t.context);
   }
   throw new Error('unknown node type: ' + t.type);
-}
-
-function args(t) {
-  const as = [];
-  for (const c of t.children) {
-    as.push(any(c));
-  }
-  return as;
 }
 
 module.exports = { fromNode };
