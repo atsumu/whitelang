@@ -33,14 +33,14 @@ function _debug(ts, p, n) {
   // console.log(n, p, ts[p]);
 }
 
-function result(n, p) {
+function _result(n, p) {
   return { n, p };
 }
 
 function _token(ts, p, type) {
   _debug(ts, p, type);
   if (p < ts.length && ts[p].type === type) {
-    return result(Node.createToken(type, ts[p]), p + 1);
+    return _result(Node.createToken(type, ts[p]), p + 1);
   }
   return null;
 }
@@ -59,7 +59,7 @@ function stmts(ts, p) {
     ns.push(r0.n);
     p = r0.p;
   }
-  return result(Node.createNode('stmts', ns), p);
+  return _result(Node.createNode('stmts', ns), p);
 }
 
 function stmt(ts, p) {
@@ -67,10 +67,10 @@ function stmt(ts, p) {
   let r0, r1;
   if ((r0 = bol(ts, p)) &&
       (r1 = exprIn0(ts, r0.p))) {
-    return result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
+    return _result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
   }
   if (r0 = bol(ts, p)) {
-    return result(Node.createNode('stmt', [r0.n]), r0.p);
+    return _result(Node.createNode('stmt', [r0.n]), r0.p);
   }
   return null;
 }
@@ -80,7 +80,7 @@ function exprIn0(ts, p) {
   let r;
   if ((r = infix0(ts, p)) ||
       (r = exprIn1(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -90,7 +90,7 @@ function exprIn1(ts, p) {
   let r;
   if ((r = infix1(ts, p)) ||
       (r = exprApply(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -100,7 +100,7 @@ function exprApply(ts, p) {
   let r;
   if ((r = apply(ts, p)) ||
       (r = exprIn2(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -110,7 +110,7 @@ function exprIn2(ts, p) {
   let r;
   if ((r = infix2(ts, p)) ||
       (r = exprPre(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -120,7 +120,7 @@ function exprPre(ts, p) {
   let r;
   if ((r = prefix(ts, p)) ||
       (r = exprPost(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -130,7 +130,7 @@ function exprPost(ts, p) {
   let r;
   if ((r = postfix(ts, p)) ||
       (r = operand(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -141,7 +141,7 @@ function infix0(ts, p) {
   if ((r0 = exprIn1(ts, p)) &&
       (r1 = inop0(ts, r0.p)) &&
       (r2 = exprIn0(ts, r1.p))) {
-    return result(Node.createNode('infix0', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('infix0', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
@@ -152,7 +152,7 @@ function infix1(ts, p) {
   if ((r0 = apply(ts, p)) &&
       (r1 = inop1(ts, r0.p)) &&
       (r2 = exprIn1(ts, r1.p))) {
-    return result(Node.createNode('infix1', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('infix1', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
@@ -162,7 +162,7 @@ function apply(ts, p) {
   let r0, r1;
   if ((r0 = exprIn2(ts, p)) &&
       (r1 = args(ts, r0.p))) {
-    return result(Node.createNode('apply', [r0.n, r1.n]), r1.p);
+    return _result(Node.createNode('apply', [r0.n, r1.n]), r1.p);
   }
   return null;
 }
@@ -173,7 +173,7 @@ function infix2(ts, p) {
   if ((r0 = exprPre(ts, p)) &&
       (r1 = inop2(ts, r0.p)) &&
       (r2 = exprIn2(ts, r1.p))) {
-    return result(Node.createNode('infix2', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('infix2', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
@@ -183,7 +183,7 @@ function prefix(ts, p) {
   let r0, r1;
   if ((r0 = preop(ts, p)) &&
       (r1 = exprPost(ts, r0.p))) {
-    return result(Node.createNode('prefix', [r0.n, r1.n]), r1.p);
+    return _result(Node.createNode('prefix', [r0.n, r1.n]), r1.p);
   }
   return null;
 }
@@ -193,7 +193,7 @@ function postfix(ts, p) {
   let r0, r1;
   if ((r0 = operand(ts, p)) &&
       (r1 = postop(ts, r0.p))) {
-    return result(Node.createNode('postfix', [r0.n, r1.n]), r1.p);
+    return _result(Node.createNode('postfix', [r0.n, r1.n]), r1.p);
   }
   return null;
 }
@@ -206,7 +206,7 @@ function args(ts, p) {
     ns.push(r0.n);
     p = r0.p;
   }
-  return result(Node.createNode('args', ns), p);
+  return _result(Node.createNode('args', ns), p);
 }
 
 function operand(ts, p) {
@@ -218,7 +218,7 @@ function operand(ts, p) {
       (r = braceBlock(ts, p)) ||
       (r = bracketBlock(ts, p)) ||
       (r = parenBlock(ts, p))) {
-    return result(r.n, r.p);
+    return _result(r.n, r.p);
   }
   return null;
 }
@@ -229,7 +229,7 @@ function braceBlock(ts, p) {
   if ((r0 = openBrace(ts, p)) &&
       (r1 = stmts(ts, r0.p)) &&
       (r2 = closeBrace(ts, r1.p))) {
-    return result(Node.createNode('braceBlock', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('braceBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
@@ -240,7 +240,7 @@ function bracketBlock(ts, p) {
   if ((r0 = openBracket(ts, p)) &&
       (r1 = stmts(ts, r0.p)) &&
       (r2 = closeBracket(ts, r1.p))) {
-    return result(Node.createNode('bracketBlock', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('bracketBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
@@ -251,7 +251,7 @@ function parenBlock(ts, p) {
   if ((r0 = openParen(ts, p)) &&
       (r1 = stmts(ts, r0.p)) &&
       (r2 = closeParen(ts, r1.p))) {
-    return result(Node.createNode('parenBlock', [r0.n, r1.n, r2.n]), r2.p);
+    return _result(Node.createNode('parenBlock', [r0.n, r1.n, r2.n]), r2.p);
   }
   return null;
 }
