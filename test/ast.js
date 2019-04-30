@@ -1,6 +1,6 @@
 'use strict';
 
-const { Scan } = require('../src/scan');
+const Scan = require('../src/scan');
 const Parse = require('../src/parse');
 const Ast = require('../src/ast');
 

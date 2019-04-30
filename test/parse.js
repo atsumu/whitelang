@@ -1,7 +1,7 @@
 'use strict';
 
 const Parse = require('../src/parse');
-const { Scan } = require('../src/scan');
+const Scan = require('../src/scan');
 const util = require('util');
 
 var tokens = Scan.top('1 + 2 + 3');

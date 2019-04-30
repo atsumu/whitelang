@@ -1,6 +1,6 @@
 'use strict';
 
-const { Scan } = require('../src/scan');
+const Scan = require('../src/scan');
 const { Token } = require('../src/token');
 
 function test(tokens, expected) {
@@ -36,123 +36,123 @@ function test(tokens, expected) {
 }
 
 test(Scan.top(''), [
-  Token.create('bol', 0, '', ''),
+  Token.create('bol', 0, 1, '', ''),
 ]);
 
 test(Scan.top('{'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('openBrace', 0, '', '{'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('openBrace', 0, 1, '', '{'),
 ]);
 
 test(Scan.top('}'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('closeBrace', 0, '', '}'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('closeBrace', 0, 1, '', '}'),
 ]);
 
 test(Scan.top('['), [
-  Token.create('bol', 0, '', ''),
-  Token.create('openBracket', 0, '', '['),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('openBracket', 0, 1, '', '['),
 ]);
 
 test(Scan.top(']'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('closeBracket', 0, '', ']'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('closeBracket', 0, 1, '', ']'),
 ]);
 
 test(Scan.top('('), [
-  Token.create('bol', 0, '', ''),
-  Token.create('openParen', 0, '', '('),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('openParen', 0, 1, '', '('),
 ]);
 
 test(Scan.top(')'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('closeParen', 0, '', ')'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('closeParen', 0, 1, '', ')'),
 ]);
 
 test(Scan.top('a'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
 ]);
 
 test(Scan.top('"a"'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('dstring', 0, '', '"a"'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('dstring', 0, 1, '', '"a"'),
 ]);
 
 test(Scan.top("'a'"), [
-  Token.create('bol', 0, '', ''),
-  Token.create('sstring', 0, '', "'a'"),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('sstring', 0, 1, '', "'a'"),
 ]);
 
 test(Scan.top('='), [
-  Token.create('bol', 0, '', ''),
-  Token.create('inop0', 0, '', '='),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('inop0', 0, 1, '', '='),
 ]);
 
 test(Scan.top('+'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('inop1', 0, '', '+'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('inop1', 0, 1, '', '+'),
 ]);
 
 test(Scan.top('\n'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('bol', 0, '', '\n'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('bol', 0, 2, '', '\n'),
 ]);
 
 test(Scan.top(' a'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 1, ' ', 'a'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 1, 1, ' ', 'a'),
 ]);
 
 test(Scan.top(' \n'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('bol', 1, ' ', '\n'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('bol', 1, 2, ' ', '\n'),
 ]);
 
 test(Scan.top('a = b'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('inop0', 2, ' ', '='),
-  Token.create('symbol', 4, ' ', 'b'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('inop0', 2, 1, ' ', '='),
+  Token.create('symbol', 4, 1, ' ', 'b'),
 ]);
 
 test(Scan.top('a + b'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('inop1', 2, ' ', '+'),
-  Token.create('symbol', 4, ' ', 'b'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('inop1', 2, 1, ' ', '+'),
+  Token.create('symbol', 4, 1, ' ', 'b'),
 ]);
 
 test(Scan.top('a.b'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('inop2', 1, '', '.'),
-  Token.create('symbol', 2, '', 'b'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('inop2', 1, 1, '', '.'),
+  Token.create('symbol', 2, 1, '', 'b'),
 ]);
 
 test(Scan.top('a.'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('postop', 1, '', '.'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('postop', 1, 1, '', '.'),
 ]);
 
 test(Scan.top('.a'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('preop', 0, '', '.'),
-  Token.create('symbol', 1, '', 'a'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('preop', 0, 1, '', '.'),
+  Token.create('symbol', 1, 1, '', 'a'),
 ]);
 
 test(Scan.top('a. b'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('postop', 1, '', '.'),
-  Token.create('symbol', 3, ' ', 'b'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('postop', 1, 1, '', '.'),
+  Token.create('symbol', 3, 1, ' ', 'b'),
 ]);
 
 test(Scan.top('a .b'), [
-  Token.create('bol', 0, '', ''),
-  Token.create('symbol', 0, '', 'a'),
-  Token.create('preop', 2, ' ', '.'),
-  Token.create('symbol', 3, '', 'b'),
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('symbol', 0, 1, '', 'a'),
+  Token.create('preop', 2, 1, ' ', '.'),
+  Token.create('symbol', 3, 1, '', 'b'),
 ]);
 
