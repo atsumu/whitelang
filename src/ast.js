@@ -25,9 +25,9 @@ class BlockAst extends BaseAst {
     const i = ' '.repeat(indent);
     var s = i + `BlockAst ${this.subtype} {\n`;
     for (const c of this.children) {
-      s += c.show(indent + 2);
+      s += c.show(indent + 2) + '\n';
     }
-    s += i + `}\n`;
+    s += i + `}`;
     return s;
   }
 }
@@ -45,28 +45,28 @@ class ApplyAst extends BaseAst {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `ApplyAst ${this.subtype} ${this.operator.text} {\n`;
+    var s = i + `ApplyAst ${this.subtype} (${this.operator.show(0)}) {\n`;
     for (const c of this.args) {
-      s += c.show(indent + 2);
+      s += c.show(indent + 2) + '\n';
     }
-    s += i + `}\n`;
+    s += i + `}`;
     return s;
   }
 }
 
-class SymbolAst extends BaseAst {
-  static create(text) {
-    return new SymbolAst(text);
+class RefAst extends BaseAst {
+  static create(context, text) {
+    return new RefAst(context, text);
   }
-  constructor(text) {
+  constructor(context, text) {
     super();
-    this.type = 'SymbolAst';
-    this.subtype = 'symbol';
+    this.type = 'RefAst';
+    this.subtype = context;
     this.text = text;
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `SymbolAst ${this.text}\n`;
+    var s = i + `RefAst ${this.text}`;
     return s;
   }
 }
@@ -82,7 +82,7 @@ class StringAst extends BaseAst {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `StringAst '${this.text}'\n`;
+    var s = i + `StringAst '${this.text}'`;
     return s;
   }
 }
@@ -130,18 +130,27 @@ function any(t) {
       false) {
     return stmts(t.children[1], t.type);
   }
-  if (t.type === 'symbol') {
-    return SymbolAst.create(t.token.text);
-  }
   if (t.type === 'string') {
     return StringAst.create(t.token.text);
   }
-  //if (t.type === 'token') {
-  //  return {
-  //    type: 'token',
-  //    text: t.text,
-  //  };
-  //}
+  if (t.type === 'token') {
+    if (t.context === 'symbol' ||
+        t.context === 'dstring' ||
+        t.context === 'sstring' ||
+        t.context === 'inop0' ||
+        t.context === 'inop1' ||
+        t.context === 'inop2' ||
+        t.context === 'preop' ||
+        t.context === 'postop' ||
+        false) {
+      return RefAst.create(t.context, t.token.text);
+    }
+    if (t.context === 'dstring' ||
+        t.context === 'sstring') {
+      return StringAst.create(t.token.text);
+    }
+    throw new Error('unknown token context' + t.context);
+  }
   throw new Error('unknown node type: ' + t.type);
 }
 

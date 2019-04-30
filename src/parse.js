@@ -2,20 +2,15 @@
 
 class Node {
   static createNode(type, children) {
-    return new Node(type, children, null);
+    return new Node(type, children, null, null);
   }
-  static createToken(token) {
-    return new Node('token', [], token);
+  static createToken(context, token) {
+    return new Node('token', [], context, token);
   }
-  static createSymbol(token) {
-    return new Node('symbol', [], token);
-  }
-  static createString(token) {
-    return new Node('string', [], token);
-  }
-  constructor(type, children, token) {
+  constructor(type, children, context, token) {
     this.type = type;
     this.children = children;
+    this.context = context;
     this.token = token;
   }
   show(indent = 0) {
@@ -24,7 +19,7 @@ class Node {
         this.type === 'symbol' ||
         this.type === 'string') {
       const t = this.token;
-      return i + `(${t.type} ${t.pos} '${t.text}')\n`;
+      return i + `(${t.type} ${t.pos} ${this.context} '${t.text}')\n`;
     } else {
       var s = i + `${this.type} {\n`;
       for (const c of this.children) {
@@ -42,6 +37,14 @@ function _debug(ts, p, n) {
 
 function result(n, p) {
   return { n, p };
+}
+
+function _token(ts, p, type) {
+  _debug(ts, p, type);
+  if (p < ts.length && ts[p].type === type) {
+    return result(Node.createToken(type, ts[p]), p + 1);
+  }
+  return null;
 }
 
 function top(tokens) {
@@ -254,115 +257,59 @@ function parenBlock(ts, p) {
 }
 
 function bol(ts, p) {
-  _debug(ts, p, 'bol');
-  if (_typeMatch(ts, p, 'bol')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'bol');
 }
 
 function openBrace(ts, p) {
-  _debug(ts, p, 'openBrace');
-  if (_typeMatch(ts, p, 'openBrace')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'openBrace');
 }
 
 function closeBrace(ts, p) {
-  _debug(ts, p, 'closeBrace');
-  if (_typeMatch(ts, p, 'closeBrace')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'closeBrace');
 }
 
 function openBracket(ts, p) {
-  _debug(ts, p, 'openBracket');
-  if (_typeMatch(ts, p, 'openBracket')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'openBracket');
 }
 
 function closeBracket(ts, p) {
-  _debug(ts, p, 'closeBracket');
-  if (_typeMatch(ts, p, 'closeBracket')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'closeBracket');
 }
 
 function openParen(ts, p) {
-  _debug(ts, p, 'openParen');
-  if (_typeMatch(ts, p, 'openParen')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'openParen');
 }
 
 function closeParen(ts, p) {
-  _debug(ts, p, 'closeParen');
-  if (_typeMatch(ts, p, 'closeParen')) {
-    return result(Node.createToken(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'closeParen');
 }
 
 function literal(ts, p) {
-  _debug(ts, p, 'literal');
-  if (_typeMatch(ts, p, 'symbol')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  if (_typeMatch(ts, p, 'dstring') ||
-      _typeMatch(ts, p, 'sstring')) {
-    return result(Node.createString(ts[p]), p + 1);
-  }
-  return null;
+  var r;
+  return (
+    _token(ts, p, 'symbol') ||
+    _token(ts, p, 'dstring') ||
+    _token(ts, p, 'sstring'));
 }
 
 function inop0(ts, p) {
-  _debug(ts, p, 'inop0');
-  if (_typeMatch(ts, p, 'inop0')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'inop0');
 }
 
 function inop1(ts, p) {
-  _debug(ts, p, 'inop1');
-  if (_typeMatch(ts, p, 'inop1')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'inop1');
 }
 
 function inop2(ts, p) {
-  _debug(ts, p, 'inop2');
-  if (_typeMatch(ts, p, 'inop2')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'inop2');
 }
 
 function preop(ts, p) {
-  _debug(ts, p, 'preop');
-  if (_typeMatch(ts, p, 'preop')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  return null;
+  return _token(ts, p, 'preop');
 }
 
 function postop(ts, p) {
-  _debug(ts, p, 'postop');
-  if (_typeMatch(ts, p, 'postop')) {
-    return result(Node.createSymbol(ts[p]), p + 1);
-  }
-  return null;
-}
-
-function _typeMatch(ts, p, t) {
-  return p < ts.length && ts[p].type === t;
+  return _token(ts, p, 'postop');
 }
 
 module.exports = { top };

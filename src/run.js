@@ -95,8 +95,8 @@ class Run {
     if (t.type === 'ApplyAst') {
       return this.apply(t);
     }
-    if (t.type === 'SymbolAst') {
-      return this.symbol(t);
+    if (t.type === 'RefAst') {
+      return this.ref(t);
     }
     if (t.type === 'StringAst') {
       return this.string(t);
@@ -127,10 +127,10 @@ class Run {
     }
     return this.env.apply(op, as);
   }
-  symbol(t) {
+  ref(t) {
     const i = parseInt(t.text);
     if (isNaN(i)) {
-      return this.env.top('inop1', t.text);
+      return this.env.top(t.subtype, t.text);
     }
     return i;
   }
