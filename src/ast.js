@@ -33,19 +33,18 @@ class BlockAst extends BaseAst {
 }
 
 class ApplyAst extends BaseAst {
-  static create(subtype, operator, args) {
-    return new ApplyAst(subtype, operator, args);
+  static create(operator, args) {
+    return new ApplyAst(operator, args);
   }
-  constructor(subtype, operator, args) {
+  constructor(operator, args) {
     super();
     this.type = 'ApplyAst';
-    this.subtype = subtype;
     this.operator = operator;
     this.args = args;
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `ApplyAst ${this.subtype} (${this.operator.show(0)}) {\n`;
+    var s = i + `ApplyAst (${this.operator.show(0)}) {\n`;
     for (const c of this.args) {
       s += c.show(indent + 2) + '\n';
     }
@@ -110,16 +109,16 @@ function any(t) {
       t.type === 'infix1' ||
       t.type === 'infix2' ||
       false) {
-    return ApplyAst.create(t.type, any(t.children[1]), [any(t.children[0]), any(t.children[2])]);
+    return ApplyAst.create(any(t.children[1]), [any(t.children[0]), any(t.children[2])]);
   }
   if (t.type === 'apply') {
-    return ApplyAst.create(t.type, any(t.children[0]), args(t.children[1]));
+    return ApplyAst.create(any(t.children[0]), args(t.children[1]));
   }
   if (t.type === 'prefix') {
-    return ApplyAst.create(t.type, any(t.children[0]), [any(t.children[1])]);
+    return ApplyAst.create(any(t.children[0]), [any(t.children[1])]);
   }
   if (t.type === 'postfix') {
-    return ApplyAst.create(t.type, any(t.children[1]), [any(t.children[0])]);
+    return ApplyAst.create(any(t.children[1]), [any(t.children[0])]);
   }
   if (t.type === 'operand') {
     return any(t.children[0]);
