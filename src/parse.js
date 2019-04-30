@@ -100,6 +100,38 @@ function stmt(ts, p) {
   return null;
 }
 
+function _rtol(r, type) {
+  // right-associative to left-associative
+  // (x + (y * z)) -> ((x + y) * z)
+  if (!r) {
+    return null;
+  }
+  const n = r.n;
+  if (n.type !== type) {
+    throw new Error('assertion failed');
+  }
+  const [c0, c1, c2] = n.children;
+  if (c2.type === type) {
+    // swap operator
+    n.children[1] = c2.children[1]; // (x * (y * z))
+    c2.children[1] = c1; // (x * (y + z))
+    // swap operand
+    n.children[0] = c2; // ((y + z) * (y + z))
+    n.children[2] = c2.children[2]; // ((y + z) * z)
+    c2.children[2] = c2.children[0]; // ((y + y) * z)
+    c2.children[0] = c0; // ((x + y) * z)
+  }
+  return r;
+}
+
+function _rtol1(r) {
+  return _rtol(r, 'infix1');
+}
+
+function _rtol2(r) {
+  return _rtol(r, 'infix2');
+}
+
 const exprIn0 = (ts, p) => _or(ts, p, 'exprIn0', infix0, exprIn1);
 const exprIn1 = (ts, p) => _or(ts, p, 'exprIn1', infix1, exprApply);
 const exprApply = (ts, p) => _or(ts, p, 'exprApply', apply, exprIn2);
@@ -108,9 +140,9 @@ const exprPre = (ts, p) => _or(ts, p, 'exprPre', prefix, exprPost);
 const exprPost = (ts, p) => _or(ts, p, 'exprPost', postfix, operand);
 
 const infix0 = (ts, p) => _and(ts, p, 'infix0', exprIn1, inop0, exprIn0);
-const infix1 = (ts, p) => _and(ts, p, 'infix1', apply, inop1, exprIn1);
+const infix1 = (ts, p) => _rtol1(_and(ts, p, 'infix1', apply, inop1, exprIn1));
 const apply = (ts, p) => _and(ts, p, 'apply', exprIn2, args);
-const infix2 = (ts, p) => _and(ts, p, 'infix2', exprPre, inop2, exprIn2);
+const infix2 = (ts, p) => _rtol2(_and(ts, p, 'infix2', exprPre, inop2, exprIn2));
 const prefix = (ts, p) => _and(ts, p, 'prefix', preop, exprPost);
 const postfix = (ts, p) => _and(ts, p, 'postifx', operand, postop);
 
