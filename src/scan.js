@@ -27,7 +27,7 @@ function matchChars(str, pos, chars) {
 }
 
 function isOperator(str, pos) {
-  return matchChars(str, pos, '=!#$%&*+,./:;<>?@^`~-');
+  return matchChars(str, pos, '!#$%&*+,./:;<=>?@^`|~-');
 }
 
 function isWhite(str, pos) {
@@ -52,7 +52,7 @@ function top(str) {
     var takePostop = false;
     if (match(str, pos, '\n')) {
       line += 1;
-      tokens.push(Token.create('bol', pos, line, preSpace, '\n'));
+      tokens.push(Token.create('bol', pos, line, preSpace + '\n', ''));
       pos += 1;
     } else if (match(str, pos, '{')) {
       tokens.push(Token.create('openBrace', pos, line, preSpace, '{'));
@@ -139,6 +139,8 @@ function top(str) {
         tokens.push(Token.create('preop', pos, line, preSpace, op));
       }
       pos = p;
+    } else {
+      throw new Error(`unknown char: '${str.charAt(pos)}' at pos=${pos} (line=${line})`);
     }
     if (isOperator(str, pos)) {
       var p = pos + 1;

@@ -4,26 +4,25 @@ class Node {
   static createNode(type, children) {
     return new Node(type, children, null, null);
   }
-  static createToken(context, token) {
-    return new Node('token', [], context, token);
+  static createToken(token) {
+    return new Node('token', [], token);
   }
-  constructor(type, children, context, token) {
+  constructor(type, children, token) {
     this.type = type;
     this.children = children;
-    this.context = context;
     this.token = token;
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
     if (this.type === 'token') {
       const t = this.token;
-      return i + `(${t.type} ${t.pos} ${this.context} '${t.text}')\n`;
+      return i + `(${t.type} ${t.pos} '${t.text}')`;
     } else {
       var s = i + `${this.type} {\n`;
       for (const c of this.children) {
-        s += c.show(indent + 2);
+        s += c.show(indent + 2) + '\n';
       }
-      s += i + '}\n';
+      s += i + '}';
       return s;
     }
   }
@@ -40,7 +39,7 @@ function _result(n, p) {
 function _token(ts, p, type) {
   _debug(ts, p, type);
   if (p < ts.length && ts[p].type === type) {
-    return _result(Node.createToken(type, ts[p]), p + 1);
+    return _result(Node.createToken(ts[p]), p + 1);
   }
   return null;
 }

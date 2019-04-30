@@ -44,9 +44,12 @@ class ApplyAst extends BaseAst {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `ApplyAst (${this.operator.show(0)}) {\n`;
+    var s = i + 'ApplyAst {\n';
+    s += i + '  operator:\n';
+    s += this.operator.show(indent + 4) + '\n';
+    s += i + '  args:\n';
     for (const c of this.args) {
-      s += c.show(indent + 2) + '\n';
+      s += c.show(indent + 4) + '\n';
     }
     s += i + `}`;
     return s;
@@ -65,7 +68,7 @@ class RefAst extends BaseAst {
   }
   show(indent = 0) {
     const i = ' '.repeat(indent);
-    var s = i + `RefAst ${this.text}`;
+    var s = i + `RefAst ${this.subtype} '${this.text}'`;
     return s;
   }
 }
@@ -135,20 +138,20 @@ function any(t) {
     return stmts(t.children[1], t.type);
   }
   if (t.type === 'token') {
-    if (t.context === 'symbol' ||
-        t.context === 'inop0' ||
-        t.context === 'inop1' ||
-        t.context === 'inop2' ||
-        t.context === 'preop' ||
-        t.context === 'postop' ||
+    if (t.token.type === 'symbol' ||
+        t.token.type === 'inop0' ||
+        t.token.type === 'inop1' ||
+        t.token.type === 'inop2' ||
+        t.token.type === 'preop' ||
+        t.token.type === 'postop' ||
         false) {
-      return RefAst.create(t.context, t.token.text);
+      return RefAst.create(t.token.type, t.token.text);
     }
-    if (t.context === 'dstring' ||
-        t.context === 'sstring') {
+    if (t.token.type === 'dstring' ||
+        t.token.type === 'sstring') {
       return StringAst.create(t.token.text);
     }
-    throw new Error('unknown token context: ' + t.context);
+    throw new Error('unknown token context: ' + t.token.type);
   }
   throw new Error('unknown node type: ' + t.type);
 }

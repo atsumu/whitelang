@@ -97,7 +97,7 @@ test(Scan.top('+'), [
 
 test(Scan.top('\n'), [
   Token.create('bol', 0, 1, '', ''),
-  Token.create('bol', 0, 2, '', '\n'),
+  Token.create('bol', 0, 2, '\n', ''),
 ]);
 
 test(Scan.top(' a'), [
@@ -107,7 +107,7 @@ test(Scan.top(' a'), [
 
 test(Scan.top(' \n'), [
   Token.create('bol', 0, 1, '', ''),
-  Token.create('bol', 1, 2, ' ', '\n'),
+  Token.create('bol', 1, 2, ' \n', ''),
 ]);
 
 test(Scan.top('a = b'), [

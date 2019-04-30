@@ -41,15 +41,6 @@ class Env {
     if (typeof f === 'number') {
       return f;
     }
-    //if (f === '+') {
-    //  console.log('+');
-    //  process.exit(1);
-    //}
-    //const s = this.stacks[f];
-    //if (s === undefined) {
-    //  throw new Error('not defined: ' + f);
-    //}
-    //const t = s[s.length - 1];
     return f(args);
   }
   startBlock() {
