@@ -39,14 +39,17 @@ class Node {
 function _debug(ts, p, n) {
   // console.log(n, p, ts[p]);
 }
+
 function result(n, p) {
   return { n, p };
 }
+
 function top(tokens) {
   _debug(tokens, 0, 'top');
   const r = stmts(tokens, 0);
   return r.n;
 }
+
 function stmts(ts, p) {
   _debug(ts, p, 'stmts');
   let r0;
@@ -57,6 +60,7 @@ function stmts(ts, p) {
   }
   return result(Node.createNode('stmts', ns), p);
 }
+
 function stmt(ts, p) {
   _debug(ts, p, 'stmt');
   let r0, r1;
@@ -69,6 +73,7 @@ function stmt(ts, p) {
   }
   return null;
 }
+
 function exprIn0(ts, p) {
   _debug(ts, p, 'exprIn0');
   let r;
@@ -78,6 +83,7 @@ function exprIn0(ts, p) {
   }
   return null;
 }
+
 function exprIn1(ts, p) {
   _debug(ts, p, 'exprIn1');
   let r;
@@ -87,6 +93,7 @@ function exprIn1(ts, p) {
   }
   return null;
 }
+
 function exprApply(ts, p) {
   _debug(ts, p, 'exprApply');
   let r;
@@ -96,6 +103,7 @@ function exprApply(ts, p) {
   }
   return null;
 }
+
 function exprIn2(ts, p) {
   _debug(ts, p, 'exprIn2');
   let r;
@@ -105,6 +113,7 @@ function exprIn2(ts, p) {
   }
   return null;
 }
+
 function exprPre(ts, p) {
   _debug(ts, p, 'exprPre');
   let r;
@@ -114,6 +123,7 @@ function exprPre(ts, p) {
   }
   return null;
 }
+
 function exprPost(ts, p) {
   _debug(ts, p, 'exprPost');
   let r;
@@ -123,6 +133,7 @@ function exprPost(ts, p) {
   }
   return null;
 }
+
 function infix0(ts, p) {
   _debug(ts, p, 'infix0');
   let r0, r1, r2;
@@ -133,6 +144,7 @@ function infix0(ts, p) {
   }
   return null;
 }
+
 function infix1(ts, p) {
   _debug(ts, p, 'infix1');
   let r0, r1, r2;
@@ -143,6 +155,7 @@ function infix1(ts, p) {
   }
   return null;
 }
+
 function apply(ts, p) {
   _debug(ts, p, 'apply');
   let r0, r1;
@@ -152,6 +165,7 @@ function apply(ts, p) {
   }
   return null;
 }
+
 function infix2(ts, p) {
   _debug(ts, p, 'infix2');
   let r0, r1, r2;
@@ -162,6 +176,7 @@ function infix2(ts, p) {
   }
   return null;
 }
+
 function prefix(ts, p) {
   _debug(ts, p, 'prefix');
   let r0, r1;
@@ -171,6 +186,7 @@ function prefix(ts, p) {
   }
   return null;
 }
+
 function postfix(ts, p) {
   _debug(ts, p, 'postfix');
   let r0, r1;
@@ -180,6 +196,7 @@ function postfix(ts, p) {
   }
   return null;
 }
+
 function args(ts, p) {
   _debug(ts, p, 'args');
   let r0;
@@ -190,6 +207,7 @@ function args(ts, p) {
   }
   return result(Node.createNode('args', ns), p);
 }
+
 function operand(ts, p) {
   _debug(ts, p, 'operand');
   let r;
@@ -201,6 +219,7 @@ function operand(ts, p) {
   }
   return null;
 }
+
 function braceBlock(ts, p) {
   _debug(ts, p, 'braceBlock');
   let r0, r1, r2;
@@ -211,6 +230,7 @@ function braceBlock(ts, p) {
   }
   return null;
 }
+
 function bracketBlock(ts, p) {
   _debug(ts, p, 'bracketBlock');
   let r0, r1, r2;
@@ -221,6 +241,7 @@ function bracketBlock(ts, p) {
   }
   return null;
 }
+
 function parenBlock(ts, p) {
   _debug(ts, p, 'parenBlock');
   let r0, r1, r2;
@@ -231,6 +252,7 @@ function parenBlock(ts, p) {
   }
   return null;
 }
+
 function bol(ts, p) {
   _debug(ts, p, 'bol');
   if (_typeMatch(ts, p, 'bol')) {
@@ -238,6 +260,7 @@ function bol(ts, p) {
   }
   return null;
 }
+
 function openBrace(ts, p) {
   _debug(ts, p, 'openBrace');
   if (_typeMatch(ts, p, 'openBrace')) {
@@ -245,6 +268,7 @@ function openBrace(ts, p) {
   }
   return null;
 }
+
 function closeBrace(ts, p) {
   _debug(ts, p, 'closeBrace');
   if (_typeMatch(ts, p, 'closeBrace')) {
@@ -252,6 +276,7 @@ function closeBrace(ts, p) {
   }
   return null;
 }
+
 function openBracket(ts, p) {
   _debug(ts, p, 'openBracket');
   if (_typeMatch(ts, p, 'openBracket')) {
@@ -259,6 +284,7 @@ function openBracket(ts, p) {
   }
   return null;
 }
+
 function closeBracket(ts, p) {
   _debug(ts, p, 'closeBracket');
   if (_typeMatch(ts, p, 'closeBracket')) {
@@ -266,6 +292,7 @@ function closeBracket(ts, p) {
   }
   return null;
 }
+
 function openParen(ts, p) {
   _debug(ts, p, 'openParen');
   if (_typeMatch(ts, p, 'openParen')) {
@@ -273,6 +300,7 @@ function openParen(ts, p) {
   }
   return null;
 }
+
 function closeParen(ts, p) {
   _debug(ts, p, 'closeParen');
   if (_typeMatch(ts, p, 'closeParen')) {
@@ -280,6 +308,7 @@ function closeParen(ts, p) {
   }
   return null;
 }
+
 function literal(ts, p) {
   _debug(ts, p, 'literal');
   if (_typeMatch(ts, p, 'symbol')) {
@@ -291,6 +320,7 @@ function literal(ts, p) {
   }
   return null;
 }
+
 function inop0(ts, p) {
   _debug(ts, p, 'inop0');
   if (_typeMatch(ts, p, 'inop0')) {
@@ -298,6 +328,7 @@ function inop0(ts, p) {
   }
   return null;
 }
+
 function inop1(ts, p) {
   _debug(ts, p, 'inop1');
   if (_typeMatch(ts, p, 'inop1')) {
@@ -305,6 +336,7 @@ function inop1(ts, p) {
   }
   return null;
 }
+
 function inop2(ts, p) {
   _debug(ts, p, 'inop2');
   if (_typeMatch(ts, p, 'inop2')) {
@@ -312,6 +344,7 @@ function inop2(ts, p) {
   }
   return null;
 }
+
 function preop(ts, p) {
   _debug(ts, p, 'preop');
   if (_typeMatch(ts, p, 'preop')) {
@@ -319,6 +352,7 @@ function preop(ts, p) {
   }
   return null;
 }
+
 function postop(ts, p) {
   _debug(ts, p, 'postop');
   if (_typeMatch(ts, p, 'postop')) {
@@ -326,6 +360,7 @@ function postop(ts, p) {
   }
   return null;
 }
+
 function _typeMatch(ts, p, t) {
   return p < ts.length && ts[p].type === t;
 }
