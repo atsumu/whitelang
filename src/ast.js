@@ -3,19 +3,24 @@
 function createBlockAst(subtype, children) {
   return {
     type: 'BlockAst',
-    subtype: subtype,
-    children: children,
+    subtype,
+    children,
   };
 }
 
-function createAssignAst(operator, args) {
+function createAssignAst(left, right) {
+  return {
+    type: 'AssignAst',
+    left,
+    right,
+  }
 }
 
 function createApplyAst(operator, args) {
   return {
     type: 'ApplyAst',
-    operator: operator,
-    args: args,
+    operator,
+    args,
   };
 }
 
@@ -23,14 +28,14 @@ function createRefAst(context, text) {
   return {
     type: 'RefAst',
     subtype: context,
-    text: text,
+    text,
   };
 }
 
 function createStringAst(text) {
   return {
     type: 'StringAst',
-    text: text,
+    text,
   };
 }
 
@@ -45,6 +50,13 @@ function show(ast, indent = 0) {
     return s;
   }
   if (ast.type === 'AssignAst') {
+    var s = i + 'Assign {\n';
+    s += i + '  left:\n';
+    s += show(ast.left, indent + 4) + '\n';
+    s += i + '  right:\n';
+    s += show(ast.right, indent + 4) + '\n';
+    s += i + `}`;
+    return s;
   }
   if (ast.type === 'ApplyAst') {
     var s = i + 'Apply {\n';
@@ -95,8 +107,10 @@ function args(t) {
 }
 
 function any(t) {
-  if (t.type === 'infix0' ||
-      t.type === 'infix1' ||
+  if (t.type === 'infix0') {
+    return createAssignAst(any(t.children[0]), any(t.children[2]));
+  }
+  if (t.type === 'infix1' ||
       t.type === 'infix2' ||
       false) {
     return createApplyAst(any(t.children[1]), [any(t.children[0]), any(t.children[2])]);
