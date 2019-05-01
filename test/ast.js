@@ -8,4 +8,4 @@ var scanned = Scan.top('1 + 2 + 3');
 var node = Parse.top(scanned.tokens);
 console.log(node.show());
 var ast = Ast.fromNode(node);
-console.log(ast.show());
+console.log(Ast.show(ast));
