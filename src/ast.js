@@ -24,6 +24,14 @@ function createApplyAst(operator, args) {
   };
 }
 
+function createFieldAst(record, key) {
+  return {
+    type: 'FieldAst',
+    record,
+    key,
+  };
+}
+
 function createRefAst(context, text) {
   return {
     type: 'RefAst',
@@ -52,7 +60,9 @@ function show(ast, indent = 0) {
   if (ast.type === 'AssignAst') {
     var s = i + 'Assign {\n';
     s += i + '  left:\n';
-    s += show(ast.left, indent + 4) + '\n';
+    for (const c of ast.left) {
+      s += show(c, indent + 4) + '\n';
+    }
     s += i + '  right:\n';
     s += show(ast.right, indent + 4) + '\n';
     s += i + `}`;
@@ -66,6 +76,15 @@ function show(ast, indent = 0) {
     for (const c of ast.args) {
       s += show(c, indent + 4) + '\n';
     }
+    s += i + `}`;
+    return s;
+  }
+  if (ast.type === 'FieldAst') {
+    var s = i + 'Field {\n';
+    s += i + '  record:\n';
+    s += show(ast.record, indent + 4) + '\n';
+    s += i + '  key:\n';
+    s += show(ast.key, indent + 4) + '\n';
     s += i + `}`;
     return s;
   }
@@ -108,12 +127,19 @@ function args(t) {
 
 function any(t) {
   if (t.type === 'infix0') {
-    return createAssignAst(any(t.children[0]), any(t.children[2]));
+    return createAssignAst(args(t.children[0]), any(t.children[2]));
   }
   if (t.type === 'infix1' ||
       t.type === 'infix2' ||
       false) {
     return createApplyAst(any(t.children[1]), [any(t.children[0]), any(t.children[2])]);
+  }
+  if (t.type === 'infix2') {
+    if (t.children[1].text === '.') {
+      return createFieldAst(t.token.type, t.token.text);
+    } else {
+      return createApplyAst(any(t.children[1]), [any(t.children[0]), any(t.children[2])]);
+    }
   }
   if (t.type === 'apply') {
     return createApplyAst(any(t.children[0]), args(t.children[1]));
@@ -149,4 +175,12 @@ function any(t) {
   throw new Error('unknown node type: ' + t.type);
 }
 
-module.exports = { show, fromNode };
+module.exports = {
+  createBlockAst,
+  createAssignAst,
+  createApplyAst,
+  createRefAst,
+  createStringAst,
+  show,
+  fromNode,
+};
