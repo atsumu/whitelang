@@ -109,17 +109,21 @@ function _rtol(r, type) {
   if (n.type !== type) {
     throw new Error('assertion failed');
   }
-  const [c0, c1, c2] = n.children;
-  if (c2.type === type) {
-    // swap operator
-    n.children[1] = c2.children[1]; // (x * (y * z))
-    c2.children[1] = c1; // (x * (y + z))
-    // swap operand
-    n.children[0] = c2; // ((y + z) * (y + z))
-    n.children[2] = c2.children[2]; // ((y + z) * z)
-    c2.children[2] = c2.children[0]; // ((y + y) * z)
-    c2.children[0] = c0; // ((x + y) * z)
-  }
+  const rec = (n, type) => {
+    const [c0, c1, c2] = n.children;
+    if (c2.type === type) {
+      // swap operator
+      n.children[1] = c2.children[1]; // (x * (y * z))
+      c2.children[1] = c1; // (x * (y + z))
+      // swap operand
+      n.children[0] = c2; // ((y + z) * (y + z))
+      n.children[2] = c2.children[2]; // ((y + z) * z)
+      c2.children[2] = c2.children[0]; // ((y + y) * z)
+      c2.children[0] = c0; // ((x + y) * z)
+      rec(n.children[0], type);
+    }
+  };
+  rec(n, type);
   return r;
 }
 
@@ -138,7 +142,7 @@ const exprIn2 = (ts, p) => _or(ts, p, 'exprIn2', infix2, exprPre);
 const exprPre = (ts, p) => _or(ts, p, 'exprPre', prefix, exprPost);
 const exprPost = (ts, p) => _or(ts, p, 'exprPost', postfix, operand);
 
-const infix0 = (ts, p) => _and(ts, p, 'infix0', exprIn1, inop0, exprIn0);
+const infix0 = (ts, p) => _and(ts, p, 'infix0', args, inop0, exprIn0);
 const infix1 = (ts, p) => _rtol1(_and(ts, p, 'infix1', apply, inop1, exprIn1));
 const apply = (ts, p) => _and(ts, p, 'apply', exprIn2, args);
 const infix2 = (ts, p) => _rtol2(_and(ts, p, 'infix2', exprPre, inop2, exprIn2));
