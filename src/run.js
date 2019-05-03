@@ -38,8 +38,12 @@ class Env {
     this.push('inop1', '/', args => {
       return args[0] / args[1];
     });
-    this.push('inop1', '|', args => {
-      return args[1]([args[0]]);
+    this.macroPush('inop1', '|', args => {
+      console.log('inop1 |', args.map(Ast.show).join('\n'));
+      return Ast.createApplyAst(args[1].operator, [
+        ...args[1].args,
+        args[0],
+      ]);
     });
     this.push('symbol', 'stdin', args => {
       return createRecord('Stdin', {});
@@ -47,13 +51,20 @@ class Env {
     this.registerMethod('Stdin', 'read', args => {
       return fs.readFileSync('/dev/stdin', { encoding: 'utf8' });
     });
+    this.push('symbol', 'stdout', args => {
+      return createRecord('Stdout', {});
+    });
+    this.registerMethod('Stdout', 'write', args => {
+      console.log('write', args);
+      return fs.writeSync(1, args[0]);
+    });
     this.push('internal', 'fieldOrMethod', args => {
       const a0 = args[0];
       const a1 = args[1];
       if (typeof a0 === 'string') {
         const type = 'String';
         if (type in this.methods && a1 in this.methods[type]) {
-          return (...as) => this.methods[type][a1]([a0, ...as]);
+          return as => this.methods[type][a1]([a0, ...as]);
         }
         throw new Error(`method not exists: String.${a1}`);
       }
@@ -92,6 +103,14 @@ class Env {
     });
     this.push('symbol', 'int', args => {
       return parseInt(args[0]);
+    });
+    this.push('symbol', 'floor', args => {
+      console.log('floor', args);
+      return Math.floor(args[0]);
+    });
+    this.push('symbol', 'debug', args => {
+      console.log('debug:', args[0]);
+      return args[0];
     });
   }
   top(type, name) {
@@ -271,7 +290,7 @@ class Run {
   }
   ref(t) {
     _debug('ref', t);
-    const i = parseInt(t.text);
+    const i = parseFloat(t.text);
     if (isNaN(i)) {
       return this.env.top(t.subtype, t.text);
     }

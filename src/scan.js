@@ -9,6 +9,10 @@ function match(str, pos, substr) {
   return true;
 }
 
+function isNumberChar(str, pos) {
+  return str.charCodeAt(pos) >= '0'.charCodeAt(0) && str.charCodeAt(pos) <= '9'.charCodeAt(0);
+}
+
 function isSymbolChar(str, pos) {
   return (
     (str.charCodeAt(pos) >= '0'.charCodeAt(0) && str.charCodeAt(pos) <= '9'.charCodeAt(0)) ||
@@ -74,6 +78,23 @@ function top(str) {
     } else if (match(str, pos, ')')) {
       tokens.push(Token.create('closeParen', pos, line, preSpace, ')'));
       pos += 1;
+      takePostop = true;
+    } else if (isNumberChar(str, pos)) {
+      var p = pos + 1;
+      for (; p < str.length; p++) {
+        if (!isNumberChar(str, p)) {
+          break;
+        }
+      }
+      if (p + 1 < str.length && match(str, p, '.') && isNumberChar(str, p + 1)) {
+        for (p += 2; p < str.length; p++) {
+          if (!isNumberChar(str, p)) {
+            break;
+          }
+        }
+      }
+      tokens.push(Token.create('symbol', pos, line, preSpace, str.substr(pos, p - pos)));
+      pos = p;
       takePostop = true;
     } else if (isSymbolChar(str, pos)) {
       var p = pos + 1;
