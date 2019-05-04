@@ -55,7 +55,6 @@ class Env {
       return createRecord('Stdout', {});
     });
     this.registerMethod('Stdout', 'write', args => {
-      console.log('write', args);
       return fs.writeSync(1, args[0]);
     });
     this.push('internal', 'fieldOrMethod', args => {
@@ -81,35 +80,28 @@ class Env {
       if (a0.type in this.methods && a1 in this.methods[a0.type]) {
         return this.methods[a0.type][a1];
       }
-      console.log('a0', a0);
       throw new Error(`field or method not exists: ${a0.type}.${a1}`);
     });
     this.macroPush('inop2', '.', args => {
-      console.log('.', args);
       return Ast.createApplyAst(Ast.createRefAst('internal', 'fieldOrMethod'), [
         Ast.createApplyAst(args[0], []),
         args[1].type === 'RefAst' ? Ast.createStringAst(args[1].text) : args[1],
       ]);
     });
     this.registerMethod('String', 'split', args => {
-      console.log('String.split args', args);
       const sep = args.length >= 2 ? args[1] : ' ';
-      console.log('String.split sep', sep);
       return args[0].split(sep);
     });
     this.registerMethod('Array', 'map', args => {
-      console.log('Array.map args', args);
       return args[0].map(args[1]);
     });
     this.push('symbol', 'int', args => {
       return parseInt(args[0]);
     });
     this.push('symbol', 'floor', args => {
-      console.log('floor', args);
       return Math.floor(args[0]);
     });
     this.push('symbol', 'debug', args => {
-      console.log('debug:', args[0]);
       return args[0];
     });
   }
@@ -171,7 +163,6 @@ class Env {
     if (typeof f === 'number') {
       return f;
     }
-    console.log('f', typeof f, f);
     return f(args);
   }
   startBlock() {
@@ -206,9 +197,7 @@ class Env {
     if (op.type !== 'RefAst') {
       return t;
     }
-    console.log('op', op);
     const m = this.macroTop(op.subtype, op.text);
-    console.log('macroTop', m);
     if (m === null) {
       return t;
     }
@@ -260,7 +249,6 @@ class Run {
   }
   assign(t) {
     _debug('assign', t);
-    console.log(Ast.show(t));
     const r1 = this.any(t.right);
     if (t.left.length == 1) {
       const l = t.left[0];
