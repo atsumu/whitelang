@@ -38,13 +38,14 @@ class Env {
     this.push('inop1', '/', args => {
       return args[0] / args[1];
     });
-    this.macroPush('inop1', '|', args => {
-      console.log('inop1 |', args.map(Ast.show).join('\n'));
+    const pipe = args => {
       return Ast.createApplyAst(args[1].operator, [
         ...args[1].args,
         args[0],
       ]);
-    });
+    };
+    this.macroPush('inop1', '|', pipe);
+    this.macroPush('inop1', '.', pipe);
     this.push('symbol', 'stdin', args => {
       return createRecord('Stdin', {});
     });
