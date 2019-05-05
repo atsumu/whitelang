@@ -24,8 +24,8 @@ class Env {
     this.methods = {};
     this.stmtStack = [];
     this.currBlock = null;
-    this.currBlockType = 'seq';
-    this.nextBlockType = 'seq';
+    this.currBlockType = 'blockTypeSeq';
+    this.nextBlockType = 'blockTypeSeq';
     this.setValue('inop1', '+', args => {
       return args[0] + args[1];
     });
@@ -165,13 +165,13 @@ class Env {
   }
   startBlock() {
     this.stmtStack.push([this.currBlock, this.currBlockType]);
-    if (this.currBlockType === 'seq') {
+    if (this.currBlockType === 'blockTypeSeq') {
       this.currBlock = null;
     } else {
       throw new Error('unknown currBlockType');
     }
     this.currBlockType = this.nextBlockType;
-    this.nextBlockType = 'seq';
+    this.nextBlockType = 'blockTypeSeq';
   }
   endBlock() {
     const stmts = this.currBlock;
@@ -181,7 +181,7 @@ class Env {
     return stmts;
   }
   stmt(v) {
-    if (this.currBlockType === 'seq') {
+    if (this.currBlockType === 'blockTypeSeq') {
       this.currBlock = v;
     } else {
       throw new Error('unknown currBlockType');
