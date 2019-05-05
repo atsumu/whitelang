@@ -106,56 +106,56 @@ class Env {
       return args[0];
     });
   }
-  getValue(type, name) {
-    const t = this.values[type];
+  getValue(tokenType, name) {
+    const t = this.values[tokenType];
     if (t === undefined) {
-      throw new Error('undefined type: ' + type);
+      throw new Error('undefined tokenType: ' + tokenType);
     }
     const s = t[name];
     if (s === undefined) {
-      throw new Error(`undefined name: '${name}' of type '${type}'`);
+      throw new Error(`undefined name: '${name}' of tokenType '${tokenType}'`);
     }
     return s;
   }
-  setValue(type, name, value) {
-    if (!(type in this.values)) {
-      this.values[type] = {};
+  setValue(tokenType, name, value) {
+    if (!(tokenType in this.values)) {
+      this.values[tokenType] = {};
     }
-    if (!(name in this.values[type])) {
-      this.values[type][name] = [];
+    if (!(name in this.values[tokenType])) {
+      this.values[tokenType][name] = [];
     }
-    this.values[type][name] = value;
+    this.values[tokenType][name] = value;
   }
-  macroTop(type, name) {
-    const t = this.macros[type];
+  macroTop(tokenType, name) {
+    const t = this.macros[tokenType];
     if (t === undefined) {
       return null;
-      //-throw new Error('undefined type: ' + type);
+      //-throw new Error('undefined tokenType: ' + tokenType);
     }
     const s = t[name];
     if (s === undefined || s.length === 0) {
       return null;
-      throw new Error(`undefined macro name: '${name}' of type '${type}'`);
+      throw new Error(`undefined macro name: '${name}' of tokenType '${tokenType}'`);
     }
     return s[s.length - 1];
   }
-  macroPush(type, name, value) {
-    if (!(type in this.macros)) {
-      this.macros[type] = {};
+  macroPush(tokenType, name, value) {
+    if (!(tokenType in this.macros)) {
+      this.macros[tokenType] = {};
     }
-    if (!(name in this.macros[type])) {
-      this.macros[type][name] = [];
+    if (!(name in this.macros[tokenType])) {
+      this.macros[tokenType][name] = [];
     }
-    this.macros[type][name].push(value);
+    this.macros[tokenType][name].push(value);
   }
-  registerMethod(type, name, f) {
-    if (!(type in this.methods)) {
-      this.methods[type] = {};
+  registerMethod(tokenType, name, f) {
+    if (!(tokenType in this.methods)) {
+      this.methods[tokenType] = {};
     }
-    this.methods[type][name] = f;
+    this.methods[tokenType][name] = f;
   }
   callMethod(record, name, args) {
-    return this.methods[record.type][name](args);
+    return this.methods[record.tokenType][name](args);
   }
   apply(f, args) {
     if (typeof f === 'number') {
@@ -250,11 +250,11 @@ class Run {
     const r1 = this.any(t.right);
     if (t.left.length == 1) {
       const l = t.left[0];
-      this.env.push(l.tokenType, l.text, r1);
+      this.env.setValue(l.tokenType, l.text, r1);
     } else {
       for (var i = 0; i < t.left.length; i++) {
         const l = t.left[i];
-        this.env.push(l.tokenType, l.text, r1[i]);
+        this.env.setValue(l.tokenType, l.text, r1[i]);
       }
     }
     return r1;
