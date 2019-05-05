@@ -249,9 +249,11 @@ class Run {
     _debug('assign', t);
     const r1 = this.any(t.right);
     if (t.left.length == 1) {
+      // x = ...
       const l = t.left[0];
       this.env.setValue(l.tokenType, l.text, r1);
     } else {
+      // x y ... = ...
       for (var i = 0; i < t.left.length; i++) {
         const l = t.left[i];
         this.env.setValue(l.tokenType, l.text, r1[i]);
