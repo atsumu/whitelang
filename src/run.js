@@ -44,8 +44,8 @@ class Env {
         args[0],
       ]);
     };
-    this.macroPush('inop1', '|', pipe);
-    this.macroPush('inop1', '.', pipe);
+    this.setMacro('inop1', '|', pipe);
+    this.setMacro('inop1', '.', pipe);
     this.setValue('symbol', 'stdin', args => {
       return createRecord('Stdin', {});
     });
@@ -83,7 +83,7 @@ class Env {
       }
       throw new Error(`field or method not exists: ${a0.type}.${a1}`);
     });
-    this.macroPush('inop2', '.', args => {
+    this.setMacro('inop2', '.', args => {
       return Ast.createApplyAst(Ast.createRefAst('internal', 'fieldOrMethod'), [
         Ast.createApplyAst(args[0], []),
         args[1].type === 'RefAst' ? Ast.createStringAst(args[1].text) : args[1],
@@ -126,27 +126,27 @@ class Env {
     }
     this.values[tokenType][name] = value;
   }
-  macroTop(tokenType, name) {
+  getMacro(tokenType, name) {
     const t = this.macros[tokenType];
     if (t === undefined) {
       return null;
       //-throw new Error('undefined tokenType: ' + tokenType);
     }
     const s = t[name];
-    if (s === undefined || s.length === 0) {
+    if (s === undefined) {
       return null;
       throw new Error(`undefined macro name: '${name}' of tokenType '${tokenType}'`);
     }
-    return s[s.length - 1];
+    return s;
   }
-  macroPush(tokenType, name, value) {
+  setMacro(tokenType, name, value) {
     if (!(tokenType in this.macros)) {
       this.macros[tokenType] = {};
     }
     if (!(name in this.macros[tokenType])) {
       this.macros[tokenType][name] = [];
     }
-    this.macros[tokenType][name].push(value);
+    this.macros[tokenType][name] = value;
   }
   registerMethod(tokenType, name, f) {
     if (!(tokenType in this.methods)) {
@@ -195,7 +195,7 @@ class Env {
     if (op.type !== 'RefAst') {
       return t;
     }
-    const m = this.macroTop(op.tokenType, op.text);
+    const m = this.getMacro(op.tokenType, op.text);
     if (m === null) {
       return t;
     }
