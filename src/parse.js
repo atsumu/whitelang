@@ -69,36 +69,6 @@ function _and(ts, p, type, ...fs) {
   return _result(Node.createNode(type, rs), p);
 }
 
-function top(tokens) {
-  _debug(tokens, 0, 'top');
-  const r = stmts(tokens, 0);
-  return r.n;
-}
-
-function stmts(ts, p) {
-  _debug(ts, p, 'stmts');
-  let r0;
-  let ns = [];
-  while (r0 = stmt(ts, p)) {
-    ns.push(r0.n);
-    p = r0.p;
-  }
-  return _result(Node.createNode('stmts', ns), p);
-}
-
-function stmt(ts, p) {
-  _debug(ts, p, 'stmt');
-  let r0, r1;
-  if ((r0 = bol(ts, p)) &&
-      (r1 = exprIn0(ts, r0.p))) {
-    return _result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
-  }
-  if (r0 = bol(ts, p)) {
-    return _result(Node.createNode('stmt', [r0.n]), r0.p);
-  }
-  return null;
-}
-
 function _rtol(r, type) {
   // right-associative to left-associative
   // (x + (y * z)) -> ((x + y) * z)
@@ -133,6 +103,36 @@ function _rtol1(r) {
 
 function _rtol2(r) {
   return _rtol(r, 'infix2');
+}
+
+function top(tokens) {
+  _debug(tokens, 0, 'top');
+  const r = stmts(tokens, 0);
+  return r.n;
+}
+
+function stmts(ts, p) {
+  _debug(ts, p, 'stmts');
+  let r0;
+  let ns = [];
+  while (r0 = stmt(ts, p)) {
+    ns.push(r0.n);
+    p = r0.p;
+  }
+  return _result(Node.createNode('stmts', ns), p);
+}
+
+function stmt(ts, p) {
+  _debug(ts, p, 'stmt');
+  let r0, r1;
+  if ((r0 = bol(ts, p)) &&
+      (r1 = exprIn0(ts, r0.p))) {
+    return _result(Node.createNode('stmt', [r0.n, r1.n]), r1.p);
+  }
+  if (r0 = bol(ts, p)) {
+    return _result(Node.createNode('stmt', [r0.n]), r0.p);
+  }
+  return null;
 }
 
 const exprIn0 = (ts, p) => _or(ts, p, 'exprIn0', infix0, exprIn1);
