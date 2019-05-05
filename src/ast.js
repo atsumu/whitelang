@@ -1,9 +1,9 @@
 'use strict';
 
-function createBlockAst(subtype, children) {
+function createBlockAst(tokenType, children) {
   return {
     type: 'BlockAst',
-    subtype,
+    tokenType,
     children,
   };
 }
@@ -35,7 +35,7 @@ function createFieldAst(record, key) {
 function createRefAst(context, text) {
   return {
     type: 'RefAst',
-    subtype: context,
+    tokenType: context,
     text,
   };
 }
@@ -50,7 +50,7 @@ function createStringAst(text) {
 function show(ast, indent = 0) {
   const i = ' '.repeat(indent);
   if (ast.type === 'BlockAst') {
-    var s = i + `Block ${ast.subtype} {\n`;
+    var s = i + `Block ${ast.tokenType} {\n`;
     for (const c of ast.children) {
       s += show(c, indent + 2) + '\n';
     }
@@ -89,7 +89,7 @@ function show(ast, indent = 0) {
     return s;
   }
   if (ast.type === 'RefAst') {
-    var s = i + `Ref ${ast.subtype} '${ast.text}'`;
+    var s = i + `Ref ${ast.tokenType} '${ast.text}'`;
     return s;
   }
   if (ast.type === 'StringAst') {
@@ -103,14 +103,14 @@ function fromNode(node) {
   return stmts(node, 'topBlock');
 }
 
-function stmts(t, subtype) {
+function stmts(t, tokenType) {
   const cs = [];
   for (const c of t.children) {
     if (c.children.length >= 2) {
       cs.push(stmt(c));
     }
   }
-  return createBlockAst(subtype, cs);
+  return createBlockAst(tokenType, cs);
 }
 
 function stmt(t) {

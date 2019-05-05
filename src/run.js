@@ -195,7 +195,7 @@ class Env {
     if (op.type !== 'RefAst') {
       return t;
     }
-    const m = this.macroTop(op.subtype, op.text);
+    const m = this.macroTop(op.tokenType, op.text);
     if (m === null) {
       return t;
     }
@@ -250,11 +250,11 @@ class Run {
     const r1 = this.any(t.right);
     if (t.left.length == 1) {
       const l = t.left[0];
-      this.env.push(l.subtype, l.text, r1);
+      this.env.push(l.tokenType, l.text, r1);
     } else {
       for (var i = 0; i < t.left.length; i++) {
         const l = t.left[i];
-        this.env.push(l.subtype, l.text, r1[i]);
+        this.env.push(l.tokenType, l.text, r1[i]);
       }
     }
     return r1;
@@ -278,7 +278,7 @@ class Run {
     _debug('ref', t);
     const i = parseFloat(t.text);
     if (isNaN(i)) {
-      return this.env.getValue(t.subtype, t.text);
+      return this.env.getValue(t.tokenType, t.text);
     }
     return i;
   }
