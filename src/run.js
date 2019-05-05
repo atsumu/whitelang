@@ -19,23 +19,23 @@ class Env {
     return new Env();
   }
   constructor() {
-    this.stacks = {};
+    this.values = {};
     this.macros = {};
     this.methods = {};
     this.stmtStack = [];
     this.currBlock = null;
     this.currBlockType = 'seq';
     this.nextBlockType = 'seq';
-    this.push('inop1', '+', args => {
+    this.setValue('inop1', '+', args => {
       return args[0] + args[1];
     });
-    this.push('inop1', '-', args => {
+    this.setValue('inop1', '-', args => {
       return args[0] - args[1];
     });
-    this.push('inop1', '*', args => {
+    this.setValue('inop1', '*', args => {
       return args[0] * args[1];
     });
-    this.push('inop1', '/', args => {
+    this.setValue('inop1', '/', args => {
       return args[0] / args[1];
     });
     const pipe = args => {
@@ -46,19 +46,19 @@ class Env {
     };
     this.macroPush('inop1', '|', pipe);
     this.macroPush('inop1', '.', pipe);
-    this.push('symbol', 'stdin', args => {
+    this.setValue('symbol', 'stdin', args => {
       return createRecord('Stdin', {});
     });
     this.registerMethod('Stdin', 'read', args => {
       return fs.readFileSync('/dev/stdin', { encoding: 'utf8' });
     });
-    this.push('symbol', 'stdout', args => {
+    this.setValue('symbol', 'stdout', args => {
       return createRecord('Stdout', {});
     });
     this.registerMethod('Stdout', 'write', args => {
       return fs.writeSync(1, args[0]);
     });
-    this.push('internal', 'fieldOrMethod', args => {
+    this.setValue('internal', 'fieldOrMethod', args => {
       const a0 = args[0];
       const a1 = args[1];
       if (typeof a0 === 'string') {
@@ -96,38 +96,35 @@ class Env {
     this.registerMethod('Array', 'map', args => {
       return args[0].map(args[1]);
     });
-    this.push('symbol', 'int', args => {
+    this.setValue('symbol', 'int', args => {
       return parseInt(args[0]);
     });
-    this.push('symbol', 'floor', args => {
+    this.setValue('symbol', 'floor', args => {
       return Math.floor(args[0]);
     });
-    this.push('symbol', 'debug', args => {
+    this.setValue('symbol', 'debug', args => {
       return args[0];
     });
   }
-  top(type, name) {
-    const t = this.stacks[type];
+  getValue(type, name) {
+    const t = this.values[type];
     if (t === undefined) {
       throw new Error('undefined type: ' + type);
     }
     const s = t[name];
-    if (s === undefined || s.length === 0) {
+    if (s === undefined) {
       throw new Error(`undefined name: '${name}' of type '${type}'`);
     }
-    return s[s.length - 1];
+    return s;
   }
-  push(type, name, value) {
-    if (!(type in this.stacks)) {
-      this.stacks[type] = {};
+  setValue(type, name, value) {
+    if (!(type in this.values)) {
+      this.values[type] = {};
     }
-    if (!(name in this.stacks[type])) {
-      this.stacks[type][name] = [];
+    if (!(name in this.values[type])) {
+      this.values[type][name] = [];
     }
-    this.stacks[type][name].push(value);
-  }
-  pop(type, name) {
-    this.stacks[type][name].pop();
+    this.values[type][name] = value;
   }
   macroTop(type, name) {
     const t = this.macros[type];
@@ -281,7 +278,7 @@ class Run {
     _debug('ref', t);
     const i = parseFloat(t.text);
     if (isNaN(i)) {
-      return this.env.top(t.subtype, t.text);
+      return this.env.getValue(t.subtype, t.text);
     }
     return i;
   }
