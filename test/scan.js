@@ -157,3 +157,11 @@ test(Scan.top('a .b'), [
   Token.create('symbol', 3, 1, '', 'b'),
 ]);
 
+test(Scan.top('{+3}'), [
+  Token.create('bol', 0, 1, '', ''),
+  Token.create('openBrace', 0, 1, '', '{'),
+  Token.create('preop', 1, 1, '', '+'),
+  Token.create('symbol', 2, 1, '', '3'),
+  Token.create('closeBrace', 3, 1, '', '}'),
+]);
+

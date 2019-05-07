@@ -163,20 +163,22 @@ function top(str) {
     } else {
       throw new Error(`unknown char: '${str.charAt(pos)}' at pos=${pos} (line=${line})`);
     }
-    if (isOperator(str, pos)) {
-      var p = pos + 1;
-      for (; p < str.length; p++) {
-        if (!isOperator(str, p)) {
-          break;
+    if (takePostop) {
+      if (isOperator(str, pos)) {
+        var p = pos + 1;
+        for (; p < str.length; p++) {
+          if (!isOperator(str, p)) {
+            break;
+          }
         }
+        var op = str.substr(pos, p - pos);
+        if (p === str.length || match(str, p, ' ')) {
+          tokens.push(Token.create('postop', pos, line, '', op));
+        } else {
+          tokens.push(Token.create('inop2', pos, line, '', op));
+        }
+        pos = p;
       }
-      var op = str.substr(pos, p - pos);
-      if (p === str.length || match(str, p, ' ')) {
-        tokens.push(Token.create('postop', pos, line, '', op));
-      } else {
-        tokens.push(Token.create('inop2', pos, line, '', op));
-      }
-      pos = p;
     }
   }
   return {
