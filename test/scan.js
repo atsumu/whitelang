@@ -36,6 +36,16 @@ function test(scanned, expected) {
   }
 }
 
+function test_error(actual, expected) {
+  if (actual.message !== expected) {
+    console.log(['actual.message !== expected', {
+      'actual.message': actual.message,
+      'expected': expected,
+    }]);
+    throw new Error('test failed.');
+  }
+}
+
 test(Scan.top(''), [
   Token.create('bol', 0, 1, '', ''),
 ]);
@@ -165,3 +175,6 @@ test(Scan.top('{+3}'), [
   Token.create('closeBrace', 3, 1, '', '}'),
 ]);
 
+test_error(Scan.top('"'), 'unexpected EOF in double quoted string started at pos=0 (line=1)');
+test_error(Scan.top("'"), 'unexpected EOF in single quoted string started at pos=0 (line=1)');
+test_error(Scan.top("\f"), "unknown char: '\f' at pos=0 (line=1)");

@@ -110,6 +110,10 @@ function top(str) {
       var p = pos + 1;
       for (; p <= str.length; p++) {
         if (p === str.length) {
+          return {
+            status: 'error',
+            message: `unexpected EOF in double quoted string started at pos=${pos} (line=${line})`,
+          };
           throw new Error('');
         }
         if (match(str, p, '\\')) {
@@ -128,7 +132,10 @@ function top(str) {
       var p = pos + 1;
       for (; p <= str.length; p++) {
         if (p === str.length) {
-          throw new Error('');
+          return {
+            status: 'error',
+            message: `unexpected EOF in single quoted string started at pos=${pos} (line=${line})`,
+          };
         }
         if (match(str, p, '\\')) {
           p++;
@@ -161,7 +168,10 @@ function top(str) {
       }
       pos = p;
     } else {
-      throw new Error(`unknown char: '${str.charAt(pos)}' at pos=${pos} (line=${line})`);
+      return {
+        status: 'error',
+        message: `unknown char: '${str.charAt(pos)}' at pos=${pos} (line=${line})`,
+      };
     }
     if (takePostop) {
       if (isOperator(str, pos)) {
@@ -182,6 +192,7 @@ function top(str) {
     }
   }
   return {
+    status: 'ok',
     string: str,
     tokens,
   };
