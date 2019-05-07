@@ -4,22 +4,22 @@ const Scan = require('../src/scan');
 const { Token } = require('../src/token');
 
 function test(scanned, expected) {
-  const tokens = scanned.tokens;
-  const min = Math.min(tokens.length, expected.length);
+  const actual = scanned.tokens;
+  const min = Math.min(actual.length, expected.length);
   const errors = [];
 
-  if (tokens.length !== expected.length) {
-    errors.push(['tokens.length !== expected.length', {
-      'tokens.length': tokens.length,
+  if (actual.length !== expected.length) {
+    errors.push(['actual.length !== expected.length', {
+      'actual.length': actual.length,
       'expected.length': expected.length,
     }]);
   }
 
   for (var i = 0; i < min; i++) {
-    if (!tokens[i].isEqualTo(expected[i])) {
-      errors.push(['tokens[i] !== expected[i]', {
+    if (!actual[i].isEqualTo(expected[i])) {
+      errors.push(['actual[i] !== expected[i]', {
         'i': i,
-        'token[i]': tokens[i],
+        'actual[i]': actual[i],
         'expected[i]': expected[i],
       }]);
       break;
